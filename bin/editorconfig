@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+var editorconfig = require("../editorconfig");
+
+console.log(editorconfig.parse(process.argv[2]));

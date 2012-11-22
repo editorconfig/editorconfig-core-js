@@ -1,0 +1,21 @@
+{
+  "name": "editorconfig",
+  "version": "0.10.2-development",
+  "description": "EditorConfig File Locator and Interpreter for Python",
+  "main": "editorconfig.js",
+  "bin": {
+    "editorconfig": "./bin/editorconfig"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+      "type": "git",
+      "url": "git://github.com/editorconfig/editorconfig-core-js.git"
+  },
+  "author": "EditorConfig Team",
+  "dependencies": {
+    "iniparser": "~1.0.5",
+    "minimatch": "~0.2.9"
+  }
+}
