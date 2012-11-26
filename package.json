@@ -14,6 +14,10 @@
       "url": "git://github.com/editorconfig/editorconfig-core-js.git"
   },
   "author": "EditorConfig Team",
+  "license": {
+    "type": "MIT",
+    "url": "http://editorconfig.mit-license.org/2012"
+  },
   "dependencies": {
     "iniparser": "~1.0.5",
     "minimatch": "~0.2.9"
