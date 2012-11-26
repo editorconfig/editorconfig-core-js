@@ -19,7 +19,7 @@
     "url": "http://editorconfig.mit-license.org/2012"
   },
   "dependencies": {
-    "iniparser": "~1.0.5",
-    "minimatch": "~0.2.9"
+    "lru-cache": "~2.0.0",
+    "sigmund": "~1.0.0"
   }
 }
