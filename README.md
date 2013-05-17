@@ -6,13 +6,27 @@ The EditorConfig JavaScript core will provide the same functionality as the
 [EditorConfig C Core]: https://github.com/editorconfig/editorconfig-core
 [EditorConfig Python Core]: https://github.com/editorconfig/editorconfig-core-py
 
-# Usage
+# Installation
 
 You need [node][] to use this package.
 
 To install this package (system-wide):
 
     sudo npm install -g .
+
+# Usage
+
+Usage as a Node library:
+
+    $ node
+    > var editorconfig = require('./editorconfig');
+    undefined
+    > editorconfig.parse('/home/zoidberg/humans/anatomy.md');
+    { charset: 'utf-8',
+      insert_final_newline: 'true',
+      end_of_line: 'lf',
+      tab_width: '8',
+      trim_trailing_whitespace: 'sometimes' }
 
 # Development
 
