@@ -28,6 +28,16 @@ Usage as a Node library:
       tab_width: '8',
       trim_trailing_whitespace: 'sometimes' }
 
+
+Usage as a command line tool:
+
+    $ editorconfig /home/zoidberg/humans/anatomy.md
+    charset=utf-8
+    insert_final_newline=true
+    end_of_line=lf
+    tab_width=8
+    trim_trailing_whitespace=sometimes
+
 # Development
 
 To install dependencies for this package run this in the package directory:
