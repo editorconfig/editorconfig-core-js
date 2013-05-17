@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
-var minimatch = require('./fnmatch');
-var iniparser = require('./ini');
+var minimatch = require('./lib/fnmatch');
+var iniparser = require('./lib/ini');
 
 function getConfigFileNames(filepath) {
   var old_dirname = filepath;
