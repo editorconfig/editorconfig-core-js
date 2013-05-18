@@ -49,3 +49,18 @@ To test the command line interface:
     ./bin/editorconfig <filepath>
 
 [node]: http://nodejs.org/
+
+# Testing
+
+[CMake][] must be installed to run the tests.
+
+To run the tests:
+
+    cmake .
+    ctest .
+
+To run the tests with increased verbosity (for debugging test failures):
+
+    ctest -VV --output-on-failure .
+
+[cmake]: http://www.cmake.org
