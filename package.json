@@ -1,7 +1,7 @@
 {
   "name": "editorconfig",
-  "version": "0.10.2-development",
-  "description": "EditorConfig File Locator and Interpreter for Python",
+  "version": "0.11.4-development",
+  "description": "EditorConfig File Locator and Interpreter for Node.js",
   "main": "editorconfig.js",
   "bin": {
     "editorconfig": "./bin/editorconfig"
@@ -19,6 +19,7 @@
     "url": "http://editorconfig.mit-license.org/2012"
   },
   "dependencies": {
+    "commander": "~1.1.1",
     "lru-cache": "~2.0.0",
     "sigmund": "~1.0.0"
   }

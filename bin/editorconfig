@@ -1,5 +1,33 @@
 #!/usr/bin/env node
 
+var fs = require("fs");
+var path = require("path");
+var program = require("commander");
+
 var editorconfig = require("../editorconfig");
 
-console.log(editorconfig.parse(process.argv[2]));
+
+var package = JSON.parse(fs.readFileSync(__dirname + "/../package.json", "utf8"));
+
+program
+  .version(package.version)
+  .usage([
+      "[OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]",
+      "EditorConfig Node.js Core Version " + package.version,
+      "FILEPATH can be a hyphen (-) if you want path(s) to be read from stdin."
+    ].join("\n\n  "))
+  .option("-f <path>",     "Specify conf filename other than \".editorconfig\"")
+  .option("-b <version>",  "Specify version (used by devs to test compatibility)")
+  .parse(process.argv);
+
+if ( ! program.args.length) {
+  program.help();
+}
+
+program.args.forEach(function(filePath) {
+  var parsed = editorconfig.parse(filePath, {config: program.F, version: program.B});
+  console.log("[%s]", filePath);
+  Object.keys(parsed).forEach(function(key) {
+    console.log(key + "=" + parsed[key]);
+  });
+});
