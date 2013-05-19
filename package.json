@@ -4,6 +4,11 @@
   "description": "EditorConfig File Locator and Interpreter for Node.js",
   "keywords": ["editorconfig", "core"],
   "main": "editorconfig.js",
+  "contributors": [
+    "Hong Xu (topbug.net)",
+    "Jed Hunsaker <jed.hunsaker[at]gmail.com>",
+    "Trey Hunner (http://treyhunner.com)"
+  ],
   "directories" : {
     "bin": "./bin",
     "lib": "./lib"
