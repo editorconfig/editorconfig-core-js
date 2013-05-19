@@ -7,6 +7,13 @@ var Version = require('./lib/version');
 var package = require('./package.json');
 
 
+function fnmatch(filepath, glob) {
+  var matchOptions = {matchBase: true, dot: true, noext: true};
+  glob = glob.replace(/\*\*/g, '{*,**/**/**}');
+  return minimatch(filepath, glob, matchOptions);
+}
+
+
 function getConfigFileNames(filepath, configname) {
   var old_dirname = filepath;
   var dirname = old_dirname;
@@ -60,7 +67,6 @@ function getOptions(options) {
 module.exports.parse = function(filepath, options) {
 
   var filepaths;
-  var matchOptions = {matchBase: true, dot: true, noext: true};
   var configurations = [];
   var matches = {};
 
@@ -81,7 +87,7 @@ module.exports.parse = function(filepath, options) {
     var config = configurations[j][1];
     for (var glob in config) {
       var fullGlob = path.join(pathPrefix, "**/" + glob);
-      if (minimatch(filepath, fullGlob, matchOptions)) {
+      if (fnmatch(filepath, fullGlob)) {
         for (var k in config[glob]) {
           var value = config[glob][k].toLowerCase();
           try {
