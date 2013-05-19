@@ -5,5 +5,4 @@ CTest*
 *.vcxproj*
 *.log
 [Tt]est*/
-CMakeCache.txt
 Makefile
