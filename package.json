@@ -2,12 +2,14 @@
   "name": "editorconfig",
   "version": "0.11.4-development",
   "description": "EditorConfig File Locator and Interpreter for Node.js",
+  "keywords": ["editorconfig", "core"],
   "main": "editorconfig.js",
-  "bin": {
-    "editorconfig": "./bin/editorconfig"
+  "directories" : {
+    "bin": "./bin",
+    "lib": "./lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cmake . && ctest ."
   },
   "repository": {
       "type": "git",

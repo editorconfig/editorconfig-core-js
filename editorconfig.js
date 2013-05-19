@@ -1,8 +1,11 @@
 var fs = require('fs');
 var path = require('path');
+
 var minimatch = require('./lib/fnmatch');
 var iniparser = require('./lib/ini');
 var Version = require('./lib/version');
+var package = require('./package.json');
+
 
 function getConfigFileNames(filepath) {
   var old_dirname = filepath;
@@ -43,7 +46,6 @@ function getOptions(options) {
     options = {};
   }
   if (typeof options.version === "undefined") {
-    var package = JSON.parse(fs.readFileSync(__dirname + "/./package.json", "utf8"));
     options.version = new Version(package.version);
   }
   return options;
