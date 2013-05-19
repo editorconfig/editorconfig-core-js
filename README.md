@@ -1,5 +1,7 @@
 # EditorConfig JavaScript Core
 
+[![Build Status](https://travis-ci.org/editorconfig/editorconfig-core-js.png?branch=test)](https://travis-ci.org/editorconfig/editorconfig-core-js)
+
 The EditorConfig JavaScript core will provide the same functionality as the
 [EditorConfig C Core][] and [EditorConfig Python Core][].
 
