@@ -16,6 +16,7 @@
       "type": "git",
       "url": "git://github.com/editorconfig/editorconfig-core-js.git"
   },
+  "bugs": "https://github.com/editorconfig/editorconfig-core-js/issues",
   "author": "EditorConfig Team",
   "license": {
     "type": "MIT",

@@ -30,7 +30,26 @@ Usage as a Node library:
 
 Usage as a command line tool:
 
-    $ editorconfig /home/zoidberg/humans/anatomy.md
+```
+$ ./bin/editorconfig
+
+  Usage: editorconfig [OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]
+
+  EditorConfig Node.js Core Version 0.11.4-development
+
+  FILEPATH can be a hyphen (-) if you want path(s) to be read from stdin.
+
+  Options:
+
+    -h, --help     output usage information
+    -V, --version  output the version number
+    -f <path>      Specify conf filename other than ".editorconfig"
+    -b <version>   Specify version (used by devs to test compatibility)
+```
+
+Example:
+
+    $ ./bin/editorconfig /home/zoidberg/humans/anatomy.md
     charset=utf-8
     insert_final_newline=true
     end_of_line=lf
