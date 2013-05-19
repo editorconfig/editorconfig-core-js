@@ -86,7 +86,14 @@ module.exports.parse = function(filepath, options) {
     var pathPrefix = configurations[j][0];
     var config = configurations[j][1];
     for (var glob in config) {
-      var fullGlob = path.join(pathPrefix, "**/" + glob);
+      var fullGlob;
+      if (glob.indexOf('/') === -1) {
+        fullGlob = path.join(pathPrefix, "**/" + glob);
+      } else if (glob.indexOf('/') === 0) {
+        fullGlob = path.join(pathPrefix, glob.substring(1));
+      } else {
+        fullGlob = path.join(pathPrefix, glob);
+      }
       if (fnmatch(filepath, fullGlob)) {
         for (var k in config[glob]) {
           var value = config[glob][k].toLowerCase();
