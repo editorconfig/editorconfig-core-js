@@ -7,12 +7,12 @@ var Version = require('./lib/version');
 var package = require('./package.json');
 
 
-function getConfigFileNames(filepath) {
+function getConfigFileNames(filepath, configname) {
   var old_dirname = filepath;
   var dirname = old_dirname;
   var paths = [];
   do {
-    paths.push(path.join(dirname, ".editorconfig"));
+    paths.push(path.join(dirname, configname || ".editorconfig"));
     old_dirname = dirname;
     dirname = path.dirname(old_dirname);
   } while(dirname != old_dirname);
@@ -59,28 +59,20 @@ function getOptions(options) {
 
 module.exports.parse = function(filepath, options) {
 
-  var filepaths = getConfigFileNames(path.dirname(filepath));
+  var filepaths;
   var matchOptions = {matchBase: true, dot: true, noext: true};
   var configurations = [];
   var matches = {};
 
   var parsedOutput;
   options = getOptions(options);
-  if (options.config) {
-    if (fs.existsSync(options.config)) {
-      parsedOutput = iniparser.parseSync(options.config);
-      configurations.push([path.dirname(options.config), parsedOutput]);
-    } else {
-      throw Error("Invalid configuration path");
-    }
-  } else {
-    for (var i in filepaths) {
-      var configFilePath = filepaths[i];
-      if (fs.existsSync(configFilePath)) {
-        parsedOutput = iniparser.parseSync(configFilePath);
-        configurations.push([path.dirname(configFilePath), parsedOutput]);
-        if (parsedOutput.root == "true") break;
-      }
+  filepaths = getConfigFileNames(path.dirname(filepath), options.config);
+  for (var i in filepaths) {
+    var configFilePath = filepaths[i];
+    if (fs.existsSync(configFilePath)) {
+      parsedOutput = iniparser.parseSync(configFilePath);
+      configurations.push([path.dirname(configFilePath), parsedOutput]);
+      if (parsedOutput.root == "true") break;
     }
   }
 
