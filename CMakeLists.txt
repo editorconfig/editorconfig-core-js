@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 2.6)
 # Do not check any compiler
 project(editorconfig-core-js NONE)
 
-set(NODE node)
+set(NODE node CACHE STRING "Node.js command")
 
 enable_testing()
 
