@@ -4,4 +4,4 @@ CTest*
 *.sln
 *.vcxproj*
 *.log
-tests/
+[Tt]est*/

@@ -9,7 +9,8 @@
     "lib": "./lib"
   },
   "scripts": {
-    "test": "cmake . && ctest ."
+    "pretest": "cmake .",
+    "test": "ctest ."
   },
   "repository": {
       "type": "git",
