@@ -68,6 +68,8 @@ module.exports.parse = function(filepath, options) {
 
   var filepaths;
   var configurations = [];
+  var knownOptions = ['end_of_line', 'indent_style', 'indent_size',
+    'insert_final_newline', 'trim_trailing_whitespace', 'charset'];
   var matches = {};
 
   var parsedOutput;
@@ -96,11 +98,14 @@ module.exports.parse = function(filepath, options) {
       }
       if (fnmatch(filepath, fullGlob)) {
         for (var k in config[glob]) {
-          var value = config[glob][k].toLowerCase();
+          var value = config[glob][k];
+          if (knownOptions.indexOf(k) !== -1) {
+            value = value.toLowerCase();
+          }
           try {
             value = JSON.parse(value);
           } catch(e){}
-          matches[k] = value;
+          matches[k.toLowerCase()] = value;
         }
       }
     }
