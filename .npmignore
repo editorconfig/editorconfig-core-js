@@ -5,3 +5,4 @@ CTest*
 *.vcxproj*
 *.log
 [Tt]est*/
+Makefile
