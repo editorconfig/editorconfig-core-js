@@ -23,9 +23,10 @@ function processMatches(matches, version) {
 
   // Set indent_size to "tab" if indent_size is unspecified and
   // indent_style is set to "tab".
-  if ("indent_style" in matches && matches["indent_style"] === "tab" &&
-    !("indent_size" in matches) && version.gte(new Version(0, 10)))
+  if ("indent_style" in matches && matches.indent_style === "tab" &&
+    !("indent_size" in matches) && version.gte(new Version(0, 10))) {
     matches["indent_size"] = "tab";
+  }
 
   // Set tab_width to indent_size if indent_size is specified and
   // tab_width is unspecified
@@ -45,8 +46,13 @@ function getOptions(options) {
   if (typeof options === "undefined") {
     options = {};
   }
-  if (typeof options.version === "undefined") {
-    options.version = new Version(package.version);
+  switch (typeof options.version) {
+    case "undefined":
+      options.version = new Version(package.version);
+      break;
+    case "string":
+      options.version = new Version(options.version);
+      break;
   }
   return options;
 }
