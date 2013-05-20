@@ -80,15 +80,17 @@ module.exports.parse = function(filepath, options) {
     if (fs.existsSync(configFilePath)) {
       parsedOutput = iniparser.parseSync(configFilePath);
       configurations.push([path.dirname(configFilePath), parsedOutput]);
-      if (parsedOutput.root == "true") break;
+      if (parsedOutput[0][1].root == "true") break;
     }
   }
 
   for (var j in configurations.reverse()) {
     var pathPrefix = configurations[j][0];
     var config = configurations[j][1];
-    for (var glob in config) {
+    for (var k in config) {
+      var glob = config[k][0];
       var fullGlob;
+      if (!glob) continue;
       if (glob.indexOf('/') === -1) {
         fullGlob = path.join(pathPrefix, "**/" + glob);
       } else if (glob.indexOf('/') === 0) {
@@ -97,15 +99,15 @@ module.exports.parse = function(filepath, options) {
         fullGlob = path.join(pathPrefix, glob);
       }
       if (fnmatch(filepath, fullGlob)) {
-        for (var k in config[glob]) {
-          var value = config[glob][k];
-          if (knownOptions.indexOf(k) !== -1) {
+        for (var m in config[k][1]) {
+          var value = config[k][1][m];
+          if (knownOptions.indexOf(m) !== -1) {
             value = value.toLowerCase();
           }
           try {
             value = JSON.parse(value);
           } catch(e){}
-          matches[k.toLowerCase()] = value;
+          matches[m.toLowerCase()] = value;
         }
       }
     }
