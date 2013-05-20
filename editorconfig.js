@@ -80,7 +80,7 @@ module.exports.parse = function(filepath, options) {
     if (fs.existsSync(configFilePath)) {
       parsedOutput = iniparser.parseSync(configFilePath);
       configurations.push([path.dirname(configFilePath), parsedOutput]);
-      if (parsedOutput[0][1].root == "true") break;
+      if ((parsedOutput[0][1].root || "").toLowerCase() == "true") break;
     }
   }
 
