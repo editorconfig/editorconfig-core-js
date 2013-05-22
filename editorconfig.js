@@ -7,6 +7,10 @@ var Version = require('./lib/version');
 var package = require('./package.json');
 
 
+var knownProps = ['end_of_line', 'indent_style', 'indent_size',
+  'insert_final_newline', 'trim_trailing_whitespace', 'charset'];
+
+
 function fnmatch(filepath, glob) {
   var matchOptions = {matchBase: true, dot: true, noext: true};
   glob = glob.replace(/\*\*/g, '{*,**/**/**}');
@@ -39,7 +43,7 @@ function processMatches(matches, version) {
   // tab_width is unspecified
   if ("indent_size" in matches && !("tab_width" in matches) &&
     matches.indent_size !== "tab")
-    matches.tab_width = matches.ident_size;
+    matches.tab_width = matches.indent_size;
 
   // Set indent_size to tab_width if indent_size is "tab"
   if("indent_size" in matches && "tab_width" in matches &&
@@ -49,7 +53,8 @@ function processMatches(matches, version) {
   return matches;
 }
 
-function getOptions(options) {
+
+function processOptions(options) {
   if (typeof options === "undefined") {
     options = {};
   }
@@ -64,27 +69,11 @@ function getOptions(options) {
   return options;
 }
 
-module.exports.parse = function(filepath, options) {
 
-  var filepaths;
-  var configurations = [];
-  var knownOptions = ['end_of_line', 'indent_style', 'indent_size',
-    'insert_final_newline', 'trim_trailing_whitespace', 'charset'];
+function getPropsForFile(filepath, configs, options) {
   var matches = {};
 
-  var parsedOutput;
-  options = getOptions(options);
-  filepaths = getConfigFileNames(path.dirname(filepath), options.config);
-  for (var i in filepaths) {
-    var configFilePath = filepaths[i];
-    if (fs.existsSync(configFilePath)) {
-      parsedOutput = iniparser.parseSync(configFilePath);
-      configurations.push([path.dirname(configFilePath), parsedOutput]);
-      if ((parsedOutput[0][1].root || "").toLowerCase() == "true") break;
-    }
-  }
-
-  configurations.reverse().forEach(function (file) {
+  configs.reverse().forEach(function (file) {
     var pathPrefix = file[0];
     var config = file[1];
     config.forEach(function (section) {
@@ -102,7 +91,7 @@ module.exports.parse = function(filepath, options) {
       if (fnmatch(filepath, fullGlob)) {
         for (var key in options) {
           var value = options[key];
-          if (knownOptions.indexOf(key) !== -1) {
+          if (knownProps.indexOf(key) !== -1) {
             value = value.toLowerCase();
           }
           try {
@@ -116,4 +105,38 @@ module.exports.parse = function(filepath, options) {
 
   return processMatches(matches, options.version);
 
+}
+
+
+function getConfigsForFiles(files) {
+  var configs = [];
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var config = [file.name, file.contents];
+    configs.push(config);
+    if ((config[1][0][1].root || "").toLowerCase() == "true") break;
+  }
+  return configs;
+}
+
+
+function readConfigFiles(filepaths) {
+  var files = [];
+  filepaths.forEach(function (configFilePath) {
+    if (fs.existsSync(configFilePath)) {
+      files.push({
+        name: path.dirname(configFilePath),
+        contents: iniparser.parseSync(configFilePath)
+      });
+    }
+  });
+  return files;
+}
+
+
+module.exports.parse = function(filepath, options) {
+  options = processOptions(options);
+  var filepaths = getConfigFileNames(path.dirname(filepath), options.config);
+  var files = readConfigFiles(filepaths);
+  return getPropsForFile(filepath, getConfigsForFiles(files), options);
 };
