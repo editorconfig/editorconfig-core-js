@@ -2,14 +2,17 @@
   "name": "editorconfig",
   "version": "0.11.1",
   "description": "EditorConfig File Locator and Interpreter for Node.js",
-  "keywords": ["editorconfig", "core"],
+  "keywords": [
+    "editorconfig",
+    "core"
+  ],
   "main": "editorconfig.js",
   "contributors": [
     "Hong Xu (topbug.net)",
     "Jed Hunsaker <jed.hunsaker[at]gmail.com>",
     "Trey Hunner (http://treyhunner.com)"
   ],
-  "directories" : {
+  "directories": {
     "bin": "./bin",
     "lib": "./lib"
   },
@@ -18,8 +21,8 @@
     "test": "ctest ."
   },
   "repository": {
-      "type": "git",
-      "url": "git://github.com/editorconfig/editorconfig-core-js.git"
+    "type": "git",
+    "url": "git://github.com/editorconfig/editorconfig-core-js.git"
   },
   "bugs": "https://github.com/editorconfig/editorconfig-core-js/issues",
   "author": "EditorConfig Team",
