@@ -32,19 +32,19 @@ function processMatches(matches, version) {
   // indent_style is set to "tab".
   if ("indent_style" in matches && matches.indent_style === "tab" &&
     !("indent_size" in matches) && version.gte(new Version(0, 10))) {
-    matches["indent_size"] = "tab";
+    matches.indent_size = "tab";
   }
 
   // Set tab_width to indent_size if indent_size is specified and
   // tab_width is unspecified
   if ("indent_size" in matches && !("tab_width" in matches) &&
-    matches["indent_size"] !== "tab")
-    matches["tab_width"] = matches["indent_size"];
+    matches.indent_size !== "tab")
+    matches.tab_width = matches.ident_size;
 
   // Set indent_size to tab_width if indent_size is "tab"
   if("indent_size" in matches && "tab_width" in matches &&
-    matches["indent_size"] === "tab")
-    matches["indent_size"] = matches["tab_width"];
+    matches.indent_size === "tab")
+    matches.indent_size = matches.tab_width;
 
   return matches;
 }
