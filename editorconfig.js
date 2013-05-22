@@ -84,13 +84,14 @@ module.exports.parse = function(filepath, options) {
     }
   }
 
-  for (var j in configurations.reverse()) {
-    var pathPrefix = configurations[j][0];
-    var config = configurations[j][1];
-    for (var k in config) {
-      var glob = config[k][0];
+  configurations.reverse().forEach(function (file) {
+    var pathPrefix = file[0];
+    var config = file[1];
+    config.forEach(function (section) {
       var fullGlob;
-      if (!glob) continue;
+      var glob = section[0];
+      var options = section[1];
+      if (!glob) return;
       if (glob.indexOf('/') === -1) {
         fullGlob = path.join(pathPrefix, "**/" + glob);
       } else if (glob.indexOf('/') === 0) {
@@ -99,19 +100,19 @@ module.exports.parse = function(filepath, options) {
         fullGlob = path.join(pathPrefix, glob);
       }
       if (fnmatch(filepath, fullGlob)) {
-        for (var m in config[k][1]) {
-          var value = config[k][1][m];
-          if (knownOptions.indexOf(m) !== -1) {
+        for (var key in options) {
+          var value = options[key];
+          if (knownOptions.indexOf(key) !== -1) {
             value = value.toLowerCase();
           }
           try {
             value = JSON.parse(value);
           } catch(e){}
-          matches[m.toLowerCase()] = value;
+          matches[key.toLowerCase()] = value;
         }
       }
-    }
-  }
+    });
+  });
 
   return processMatches(matches, options.version);
 
