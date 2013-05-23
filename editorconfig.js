@@ -4,7 +4,7 @@ var path = require('path');
 var minimatch = require('./lib/fnmatch');
 var iniparser = require('./lib/ini');
 var Version = require('./lib/version');
-var package = require('./package.json');
+var pkg = require('./package.json');
 
 
 var knownProps = ['end_of_line', 'indent_style', 'indent_size',
@@ -55,17 +55,8 @@ function processMatches(matches, version) {
 
 
 function processOptions(options) {
-  if (typeof options === "undefined") {
-    options = {};
-  }
-  switch (typeof options.version) {
-    case "undefined":
-      options.version = new Version(package.version);
-      break;
-    case "string":
-      options.version = new Version(options.version);
-      break;
-  }
+  options = options || {};
+  options.version = new Version(options.version || pkg.version);
   return options;
 }
 
@@ -113,7 +104,7 @@ function getConfigsForFiles(files) {
   for (var i = 0; i < files.length; i++) {
     files[i].contents = iniparser.parseString(files[i].contents);
     configs.push(files[i]);
-    if ((files[i].contents[0][1].root || "").toLowerCase() == "true") break;
+    if (/^true$/i.test(files[i].contents[0][1].root)) break;
   }
   return configs;
 }
