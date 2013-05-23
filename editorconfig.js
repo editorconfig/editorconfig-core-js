@@ -134,12 +134,14 @@ function readConfigFiles(filepaths) {
 
 
 module.exports.parseFromFiles = function(filepath, files, options) {
+  filepath = path.resolve(filepath);
   options = processOptions(options);
   return parseFromFiles(filepath, getConfigsForFiles(files), options);
 };
 
 
 module.exports.parse = function(filepath, options) {
+  filepath = path.resolve(filepath);
   options = processOptions(options);
   var filepaths = getConfigFileNames(path.dirname(filepath), options.config);
   var files = readConfigFiles(filepaths);
