@@ -70,12 +70,12 @@ function processOptions(options) {
 }
 
 
-function getPropsForFile(filepath, configs, options) {
+function parseFromFiles(filepath, configs, options) {
   var matches = {};
 
   configs.reverse().forEach(function (file) {
-    var pathPrefix = file[0];
-    var config = file[1];
+    var pathPrefix = path.dirname(file.name);
+    var config = file.contents;
     config.forEach(function (section) {
       var fullGlob;
       var glob = section[0];
@@ -111,10 +111,9 @@ function getPropsForFile(filepath, configs, options) {
 function getConfigsForFiles(files) {
   var configs = [];
   for (var i = 0; i < files.length; i++) {
-    var file = files[i];
-    var config = [file.name, file.contents];
-    configs.push(config);
-    if ((config[1][0][1].root || "").toLowerCase() == "true") break;
+    files[i].contents = iniparser.parseString(files[i].contents);
+    configs.push(files[i]);
+    if ((files[i].contents[0][1].root || "").toLowerCase() == "true") break;
   }
   return configs;
 }
@@ -125,8 +124,8 @@ function readConfigFiles(filepaths) {
   filepaths.forEach(function (configFilePath) {
     if (fs.existsSync(configFilePath)) {
       files.push({
-        name: path.dirname(configFilePath),
-        contents: iniparser.parseSync(configFilePath)
+        name: configFilePath,
+        contents: fs.readFileSync(configFilePath, 'utf-8')
       });
     }
   });
@@ -134,9 +133,15 @@ function readConfigFiles(filepaths) {
 }
 
 
+module.exports.parseFromFiles = function(filepath, files, options) {
+  options = processOptions(options);
+  return parseFromFiles(filepath, getConfigsForFiles(files), options);
+};
+
+
 module.exports.parse = function(filepath, options) {
   options = processOptions(options);
   var filepaths = getConfigFileNames(path.dirname(filepath), options.config);
   var files = readConfigFiles(filepaths);
-  return getPropsForFile(filepath, getConfigsForFiles(files), options);
+  return parseFromFiles(filepath, getConfigsForFiles(files), options);
 };
