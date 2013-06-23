@@ -6,3 +6,7 @@ CTest*
 *.log
 [Tt]est*/
 Makefile
+.editorconfig
+.gitattributes
+.npmignore
+.travis.yml
