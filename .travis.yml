@@ -8,11 +8,11 @@ node_js:
 
 install:
   - sudo apt-get install cmake
+  - npm install
 
 script:
-  - npm install .
-  - cmake .
-  - ctest -VV --output-on-failure .
+  - npm run-script pretest
+  - npm run-script test-verbose
 
 notifications:
   email:

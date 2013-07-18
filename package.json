@@ -18,7 +18,8 @@
   },
   "scripts": {
     "pretest": "cmake .",
-    "test": "ctest ."
+    "test": "ctest .",
+    "test-verbose": "ctest -VV --output-on-failure ."
   },
   "repository": {
     "type": "git",
