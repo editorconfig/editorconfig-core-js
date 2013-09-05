@@ -8,7 +8,7 @@ var pkg = require('./package.json');
 
 
 var knownProps = ['end_of_line', 'indent_style', 'indent_size',
-  'insert_final_newline', 'trim_trailing_whitespace', 'charset'];
+    'insert_final_newline', 'trim_trailing_whitespace', 'charset'];
 
 
 function fnmatch(filepath, glob) {
@@ -42,12 +42,12 @@ function processMatches(matches, version) {
   // Set tab_width to indent_size if indent_size is specified and
   // tab_width is unspecified
   if ("indent_size" in matches && !("tab_width" in matches) &&
-    matches.indent_size !== "tab")
+  matches.indent_size !== "tab")
     matches.tab_width = matches.indent_size;
 
   // Set indent_size to tab_width if indent_size is "tab"
   if("indent_size" in matches && "tab_width" in matches &&
-    matches.indent_size === "tab")
+  matches.indent_size === "tab")
     matches.indent_size = matches.tab_width;
 
   return matches;

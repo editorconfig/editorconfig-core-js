@@ -19,7 +19,8 @@
   "scripts": {
     "pretest": "cmake .",
     "test": "ctest .",
-    "test-verbose": "ctest -VV --output-on-failure ."
+    "test-verbose": "ctest -VV --output-on-failure .",
+    "codepaint": "codepaint xform -e **/**.js"
   },
   "repository": {
     "type": "git",
