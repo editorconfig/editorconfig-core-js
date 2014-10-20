@@ -6,17 +6,14 @@ var iniparser = require('./lib/ini');
 var Version = require('./lib/version');
 var pkg = require('./package.json');
 
-
 var knownProps = ['end_of_line', 'indent_style', 'indent_size',
     'insert_final_newline', 'trim_trailing_whitespace', 'charset'];
-
 
 function fnmatch(filepath, glob) {
   var matchOptions = {matchBase: true, dot: true, noext: true};
   glob = glob.replace(/\*\*/g, '{*,**/**/**}');
   return minimatch(filepath, glob, matchOptions);
 }
-
 
 function getConfigFileNames(filepath, configname) {
   var old_dirname = filepath;
@@ -31,7 +28,6 @@ function getConfigFileNames(filepath, configname) {
 }
 
 function processMatches(matches, version) {
-
   // Set indent_size to "tab" if indent_size is unspecified and
   // indent_style is set to "tab".
   if ("indent_style" in matches && matches.indent_style === "tab" &&
@@ -53,13 +49,11 @@ function processMatches(matches, version) {
   return matches;
 }
 
-
 function processOptions(options) {
   options = options || {};
   options.version = new Version(options.version || pkg.version);
   return options;
 }
-
 
 function parseFromFiles(filepath, configs, options) {
   var matches = {};
@@ -95,9 +89,7 @@ function parseFromFiles(filepath, configs, options) {
   });
 
   return processMatches(matches, options.version);
-
 }
-
 
 function getConfigsForFiles(files) {
   var configs = [];
@@ -108,7 +100,6 @@ function getConfigsForFiles(files) {
   }
   return configs;
 }
-
 
 function readConfigFiles(filepaths) {
   var files = [];
@@ -123,13 +114,11 @@ function readConfigFiles(filepaths) {
   return files;
 }
 
-
 module.exports.parseFromFiles = function(filepath, files, options) {
   filepath = path.resolve(filepath);
   options = processOptions(options);
   return parseFromFiles(filepath, getConfigsForFiles(files), options);
 };
-
 
 module.exports.parse = function(filepath, options) {
   filepath = path.resolve(filepath);
