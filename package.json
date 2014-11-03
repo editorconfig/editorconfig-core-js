@@ -20,7 +20,7 @@
     "pretest": "cmake .",
     "test": "ctest .",
     "test-verbose": "ctest -VV --output-on-failure .",
-    "codepaint": "codepaint xform -e **/**.js"
+    "codepaint": "codepainter xform -e **/**.js"
   },
   "repository": {
     "type": "git",
@@ -33,8 +33,12 @@
     "url": "http://editorconfig.mit-license.org/2012"
   },
   "dependencies": {
+    "bluebird": "^2.3.6",
     "commander": "~1.1.1",
     "lru-cache": "~2.0.0",
     "sigmund": "~1.0.0"
+  },
+  "devDependencies": {
+    "codepainter": "^0.4.4"
   }
 }

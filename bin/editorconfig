@@ -2,10 +2,10 @@
 
 var path = require("path");
 var program = require("commander");
+var Promise = require("bluebird");
 
 var editorconfig = require("../editorconfig");
 var package = require("../package.json");
-
 
 program.version("EditorConfig Node.js Core Version " + package.version);
 
@@ -24,14 +24,17 @@ program
 // to adhere to testing requirements
 program.options.shift();
 
-if ( ! program.args.length) {
+var files = program.args;
+
+if (!files.length) {
   program.help();
 }
 
-program.args.forEach(function(filePath) {
-  var parsed = editorconfig.parse(filePath, {config: program.F, version: program.B});
-  if (program.args.length > 1) {
-    console.log("[%s]", filePath);
+Promise.map(files, function(filePath) {
+  return editorconfig.parse(filePath, {config: program.F, version: program.B});
+}).each(function(parsed, i, length) {
+  if (length > 1) {
+    console.log("[%s]", files[i]);
   }
   Object.keys(parsed).forEach(function(key) {
     console.log(key + "=" + parsed[key]);
