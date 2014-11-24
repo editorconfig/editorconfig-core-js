@@ -1,3 +1,4 @@
+var os = require('os');
 var path = require('path');
 var Promise = require('bluebird');
 var whenReadFile = Promise.promisify(require('fs').readFile);
@@ -56,13 +57,19 @@ function processMatches(matches, version) {
   return matches;
 }
 
-function processOptions(options) {
+function processOptions(options, filepath) {
   options = options || {};
   return {
     config: options.config || '.editorconfig',
     version: new Version(options.version || pkg.version),
-    root: path.resolve(options.root || '/')
+    root: path.resolve(options.root || getFilepathRoot(filepath))
   };
+  function getFilepathRoot(filepath) {
+    if (os.platform() === 'win32') {
+      return path.resolve(filepath).match(/^[^\\]+\\/)[0];
+    }
+    return '/';
+  }
 }
 
 function parseFromFiles(filepath, files, options) {
@@ -131,13 +138,13 @@ function readConfigFiles(filepaths) {
 
 module.exports.parseFromFiles = function (filepath, files, options) {
   filepath = path.resolve(filepath);
-  options = processOptions(options);
+  options = processOptions(options, filepath);
   return parseFromFiles(filepath, files, options);
 };
 
 module.exports.parse = function (filepath, options) {
   filepath = path.resolve(filepath);
-  options = processOptions(options);
+  options = processOptions(options, filepath);
   var filepaths = getConfigFileNames(filepath, options);
   var files = readConfigFiles(filepaths);
   return parseFromFiles(filepath, files, options);
