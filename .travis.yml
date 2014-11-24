@@ -1,20 +1,17 @@
 language: node_js
 
 node_js:
-  - "0.8"
-  - "0.10"
-  - "0.11"
-
-before_install:
-  - npm install -g npm
+  - '0.8'
+  - '0.10'
 
 install:
   - sudo apt-get install cmake
+  - npm install -g npm
   - npm install
 
 script:
-  - npm run-script pretest
-  - npm run-script test-verbose
+  - npm run pretest
+  - npm run test-verbose
 
 notifications:
   email:
