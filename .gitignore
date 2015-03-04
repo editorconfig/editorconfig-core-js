@@ -1,8 +1,10 @@
 node_modules/
-CMake*
 CTest*
 *.sln
 *.vcxproj*
 *.log
 [Tt]est*/
 Makefile
+*.cmake
+/CMakeFiles/
+/CMakeCache.txt
