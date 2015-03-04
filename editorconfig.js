@@ -95,6 +95,11 @@ function parseFromFiles(filepath, files, options) {
         try {
           value = JSON.parse(value);
         } catch(e) {}
+        if (typeof value === 'undefined' || value === null) {
+          // null and undefined are values specific to JSON (no special meaning
+          // in editorconfig) & should just be returned as regular strings.
+          value = String(value);
+        }
         matches[key] = value;
       }
     });
