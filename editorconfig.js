@@ -142,15 +142,19 @@ function readConfigFiles(filepaths) {
 }
 
 module.exports.parseFromFiles = function (filepath, files, options) {
-  filepath = path.resolve(filepath);
-  options = processOptions(options, filepath);
-  return parseFromFiles(filepath, files, options);
+  return new Promise (function (resolve, reject) {
+    filepath = path.resolve(filepath);
+    options = processOptions(options, filepath);
+    return parseFromFiles(filepath, files, options);
+  });
 };
 
 module.exports.parse = function (filepath, options) {
-  filepath = path.resolve(filepath);
-  options = processOptions(options, filepath);
-  var filepaths = getConfigFileNames(filepath, options);
-  var files = readConfigFiles(filepaths);
-  return parseFromFiles(filepath, files, options);
+  return new Promise (function (resolve, reject) {
+    filepath = path.resolve(filepath);
+    options = processOptions(options, filepath);
+    var filepaths = getConfigFileNames(filepath, options);
+    var files = readConfigFiles(filepaths);
+    return parseFromFiles(filepath, files, options);
+  });
 };
