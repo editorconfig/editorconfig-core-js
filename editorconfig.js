@@ -145,7 +145,7 @@ module.exports.parseFromFiles = function (filepath, files, options) {
   return new Promise (function (resolve, reject) {
     filepath = path.resolve(filepath);
     options = processOptions(options, filepath);
-    return parseFromFiles(filepath, files, options);
+    resolve(parseFromFiles(filepath, files, option));
   });
 };
 
@@ -155,6 +155,6 @@ module.exports.parse = function (filepath, options) {
     options = processOptions(options, filepath);
     var filepaths = getConfigFileNames(filepath, options);
     var files = readConfigFiles(filepaths);
-    return parseFromFiles(filepath, files, options);
+    resolve(parseFromFiles(filepath, files, options));
   });
 };
