@@ -35,6 +35,17 @@ function getConfigFileNames(filepath, options) {
   return paths;
 }
 
+function getFilepathRoot(filepath) {
+  if (path.parse !== undefined) {
+    // Node.js >= 0.11.15
+    return path.parse(filepath).root;
+  }
+  if (os.platform() === 'win32') {
+    return path.resolve(filepath).match(/^(\\\\[^\\]+\\)?[^\\]+\\/)[0];
+  }
+  return '/';
+}
+
 function processMatches(matches, version) {
   // Set indent_size to "tab" if indent_size is unspecified and
   // indent_style is set to "tab".
@@ -64,12 +75,6 @@ function processOptions(options, filepath) {
     version: new Version(options.version || pkg.version),
     root: path.resolve(options.root || getFilepathRoot(filepath))
   };
-  function getFilepathRoot(filepath) {
-    if (os.platform() === 'win32') {
-      return path.resolve(filepath).match(/^[^\\]+\\/)[0];
-    }
-    return '/';
-  }
 }
 
 function parseFromFiles(filepath, files, options) {
