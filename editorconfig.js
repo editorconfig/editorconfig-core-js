@@ -4,7 +4,7 @@ var Promise = require('bluebird');
 var whenReadFile = Promise.promisify(require('fs').readFile);
 
 var minimatch = require('./lib/fnmatch');
-var iniparser = require('./lib/ini');
+var ini = require('ini');
 var Version = require('./lib/version');
 var pkg = require('./package.json');
 
@@ -122,7 +122,7 @@ StopReduce.prototype = Object.create(Error.prototype);
 
 function getConfigsForFiles(files) {
   return Promise.reduce(files, function (configs, file) {
-    var contents = iniparser.parseString(file.contents);
+    var contents = ini.parse(file.contents);
     configs.push({
       name: file.name,
       contents: contents
