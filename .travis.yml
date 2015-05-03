@@ -10,8 +10,10 @@ install:
   - npm install -g npm
   - npm install
 
-script:
+before_script:
   - npm run pretest
+
+script:
   - npm run test-verbose
 
 notifications:
