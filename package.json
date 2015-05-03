@@ -9,7 +9,7 @@
   "main": "editorconfig.js",
   "contributors": [
     "Hong Xu (topbug.net)",
-    "Jed Hunsaker <jed.hunsaker[at]gmail.com>",
+    "Jed Mao (https://github.com/jedmao/)",
     "Trey Hunner (http://treyhunner.com)"
   ],
   "directories": {
@@ -19,8 +19,7 @@
   "scripts": {
     "pretest": "cmake .",
     "test": "ctest .",
-    "test-verbose": "ctest -VV --output-on-failure .",
-    "codepaint": "codepainter xform -e **/**.js"
+    "test-verbose": "ctest -VV --output-on-failure ."
   },
   "repository": {
     "type": "git",
@@ -37,8 +36,5 @@
     "commander": "~1.1.1",
     "lru-cache": "~2.0.0",
     "sigmund": "~1.0.0"
-  },
-  "devDependencies": {
-    "codepainter": "^0.4.4"
   }
 }
