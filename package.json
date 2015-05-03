@@ -18,8 +18,9 @@
   },
   "scripts": {
     "pretest": "cmake .",
-    "test": "ctest .",
-    "test-verbose": "ctest -VV --output-on-failure ."
+    "test": "npm run lint && ctest .",
+    "test-verbose": "npm run lint && ctest -VV --output-on-failure .",
+    "lint": "node_modules/.bin/eclint check --indent_size ignore editorconfig.js README.md \"bin/**\" \"lib/**\""
   },
   "repository": {
     "type": "git",
@@ -36,5 +37,8 @@
     "commander": "~1.1.1",
     "lru-cache": "~2.0.0",
     "sigmund": "~1.0.0"
+  },
+  "devDependencies": {
+    "eclint": "^0.2.6"
   }
 }
