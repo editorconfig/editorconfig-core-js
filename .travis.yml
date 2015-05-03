@@ -1,14 +1,10 @@
+sudo: false
+
 language: node_js
 
 node_js:
-  - '0.8'
   - '0.10'
   - '0.12'
-
-install:
-  - sudo apt-get install cmake
-  - npm install -g npm
-  - npm install
 
 before_script:
   - npm run pretest
