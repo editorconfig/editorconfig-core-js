@@ -216,7 +216,7 @@ module.exports.parseFromFiles = function (filepath, files, options) {
   return new Promise (function (resolve, reject) {
     filepath = path.resolve(filepath);
     options = processOptions(options, filepath);
-    resolve(parseFromFiles(filepath, files, option));
+    resolve(parseFromFiles(filepath, files, options));
   });
 };
 
