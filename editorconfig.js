@@ -79,6 +79,34 @@ function processOptions(options, filepath) {
   };
 }
 
+function buildFullGlob(pathPrefix, glob) {
+  switch (glob.indexOf('/')) {
+    case -1: glob = "**/" + glob; break;
+    case  0: glob = glob.substring(1); break;
+  }
+  return path.join(pathPrefix, glob);
+}
+
+function extendProps(props, options) {
+  for (var key in options) {
+    var value = options[key];
+    key = key.toLowerCase();
+    if (knownProps[key]) {
+      value = value.toLowerCase();
+    }
+    try {
+      value = JSON.parse(value);
+    } catch(e) {}
+    if (typeof value === 'undefined' || value === null) {
+      // null and undefined are values specific to JSON (no special meaning
+      // in editorconfig) & should just be returned as regular strings.
+      value = String(value);
+    }
+    props[key] = value;
+  }
+  return props;
+}
+
 function parseFromFiles(filepath, files, options) {
   return getConfigsForFiles(files).then(function (configs) {
     return configs.reverse();
@@ -87,28 +115,9 @@ function parseFromFiles(filepath, files, options) {
     file.contents.forEach(function (section) {
       var glob = section[0], options = section[1];
       if (!glob) return;
-      switch (glob.indexOf('/')) {
-        case -1: glob = "**/" + glob; break;
-        case  0: glob = glob.substring(1); break;
-      }
-      var fullGlob = path.join(pathPrefix, glob);
+      var fullGlob = buildFullGlob(pathPrefix, glob);
       if (!fnmatch(filepath, fullGlob)) return;
-      for (var key in options) {
-        var value = options[key];
-        key = key.toLowerCase();
-        if (knownProps[key]) {
-          value = value.toLowerCase();
-        }
-        try {
-          value = JSON.parse(value);
-        } catch(e) {}
-        if (typeof value === 'undefined' || value === null) {
-          // null and undefined are values specific to JSON (no special meaning
-          // in editorconfig) & should just be returned as regular strings.
-          value = String(value);
-        }
-        matches[key] = value;
-      }
+      matches = extendProps(matches, options);
     });
     return matches;
   }, {}).then(function (matches) {
@@ -125,26 +134,9 @@ function parseFromFilesSync(filepath, files, options) {
     config.contents.forEach(function(section) {
       var glob = section[0], options = section[1];
       if (!glob) return;
-      switch (glob.indexOf('/')) {
-        case -1: glob = "**/" + glob; break;
-        case  0: glob = glob.substring(1); break;
-      }
-      var fullGlob = path.join(pathPrefix, glob);
+      var fullGlob = buildFullGlob(pathPrefix, glob);
       if (!fnmatch(filepath, fullGlob)) return;
-      for (var key in options) {
-        var value = options[key];
-        key = key.toLowerCase();
-        if (knownProps[key]) {
-          value = value.toLowerCase();
-        }
-        try {
-          value = JSON.parse(value);
-        } catch(e) {}
-        if (typeof value === 'undefined' || value === null) {
-          value = String(value);
-        }
-        matches[key] = value;
-      }
+      matches = extendProps(matches, options);
     });
   });
   return processMatches(matches, options.version);
