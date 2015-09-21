@@ -220,6 +220,12 @@ module.exports.parseFromFiles = function (filepath, files, options) {
   });
 };
 
+module.exports.parseFromFilesSync = function (filepath, files, options) {
+  filepath = path.resolve(filepath);
+  options = processOptions(options, filepath);
+  return parseFromFilesSync(filepath, files, options);
+};
+
 module.exports.parse = function (filepath, options) {
   return new Promise (function (resolve, reject) {
     filepath = path.resolve(filepath);
