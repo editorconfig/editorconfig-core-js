@@ -35,3 +35,46 @@ describe('parse', function() {
     expected.should.eql(editorconfig.parseSync(target));
   });
 });
+
+describe('parseFromFiles', function() {
+  it('async', function() {
+    var expected = {
+      end_of_line: 'lf',
+      insert_final_newline: true,
+      trim_trailing_whitespace: true,
+      indent_style: 'tab',
+      indent_size: 'tab'
+    };
+    var configs = [];
+    var configPath = path.join(__dirname, '/.editorconfig');
+    var config = {
+      name: configPath,
+      contents: fs.readFileSync(configPath, 'utf8')
+    };
+    configs.push(config);
+    var target = path.join(__dirname, '/app.js');
+    var promise = editorconfig.parseFromFiles(target, configs);
+    return promise.then(function onFulfilled(result) {
+      expected.should.eql(result);
+    });
+  });
+
+  it('sync', function() {
+    var expected = {
+      end_of_line: 'lf',
+      insert_final_newline: true,
+      trim_trailing_whitespace: true,
+      indent_style: 'tab',
+      indent_size: 'tab'
+    };
+    var configs = [];
+    var configPath = path.join(__dirname, '/.editorconfig');
+    var config = {
+      name: configPath,
+      contents: fs.readFileSync(configPath, 'utf8')
+    };
+    configs.push(config);
+    var target = path.join(__dirname, '/app.js');
+    expected.should.eql(editorconfig.parseFromFilesSync(target, configs));
+  });
+});
