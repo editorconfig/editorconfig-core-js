@@ -3,7 +3,7 @@ CTest*
 *.sln
 *.vcxproj*
 *.log
-[Tt]est*/
+[Tt]ests/
 Makefile
 *.cmake
 /CMakeFiles/
