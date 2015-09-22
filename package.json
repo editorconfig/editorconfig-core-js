@@ -39,6 +39,8 @@
     "sigmund": "~1.0.0"
   },
   "devDependencies": {
-    "eclint": "^0.2.6"
+    "eclint": "^0.2.6",
+    "mocha": "^2.3.3",
+    "should": "^7.1.0"
   }
 }
