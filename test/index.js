@@ -6,7 +6,7 @@ var should = require('should');
 describe('parse', function() {
   it('async', function() {
     var expected = {
-      indent_style: 'tab',
+      indent_style: 'space',
       indent_size: 2,
       end_of_line: 'lf',
       charset: 'utf-8',
@@ -23,7 +23,7 @@ describe('parse', function() {
 
   it('sync', function() {
     var expected = {
-      indent_style: 'tab',
+      indent_style: 'space',
       indent_size: 2,
       end_of_line: 'lf',
       charset: 'utf-8',
@@ -39,14 +39,16 @@ describe('parse', function() {
 describe('parseFromFiles', function() {
   it('async', function() {
     var expected = {
+      indent_style: 'space',
+      indent_size: 2,
+      tab_width: 2,
       end_of_line: 'lf',
-      insert_final_newline: true,
+      charset: 'utf-8',
       trim_trailing_whitespace: true,
-      indent_style: 'tab',
-      indent_size: 'tab'
+      insert_final_newline: true,
     };
     var configs = [];
-    var configPath = path.join(__dirname, '/.editorconfig');
+    var configPath = path.resolve(__dirname, '../.editorconfig');
     var config = {
       name: configPath,
       contents: fs.readFileSync(configPath, 'utf8')
@@ -61,14 +63,16 @@ describe('parseFromFiles', function() {
 
   it('sync', function() {
     var expected = {
+      indent_style: 'space',
+      indent_size: 2,
+      tab_width: 2,
       end_of_line: 'lf',
-      insert_final_newline: true,
+      charset: 'utf-8',
       trim_trailing_whitespace: true,
-      indent_style: 'tab',
-      indent_size: 'tab'
+      insert_final_newline: true,
     };
     var configs = [];
-    var configPath = path.join(__dirname, '/.editorconfig');
+    var configPath = path.resolve(__dirname, '../.editorconfig');
     var config = {
       name: configPath,
       contents: fs.readFileSync(configPath, 'utf8')
