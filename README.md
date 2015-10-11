@@ -38,7 +38,7 @@ options is an object with the following defaults:
 };
 ```
 
-Search to the `.editorconfig` from current directory to the root directory.
+Search for `.editorconfig` starting from the current directory to the root directory.
 
 Example:
 
