@@ -12,31 +12,115 @@ You need [node][] to use this package.
 
 To install this package (system-wide):
 
-    $ npm install editorconfig
+```bash
+$ npm install editorconfig
+```
 
 To install the package system-wide:
 
-    $ npm install -g editorconfig
-
+```bash
+$ npm install -g editorconfig
+```
 
 ## Usage
 
-Usage as a Node library:
+### in Node.js:
 
-    $ node
-    > var editorconfig = require('./editorconfig');
-    undefined
-    > editorconfig.parse('/home/zoidberg/humans/anatomy.md');
-    { charset: 'utf-8',
-        insert_final_newline: 'true',
-        end_of_line: 'lf',
-        tab_width: '8',
-        trim_trailing_whitespace: 'sometimes' }
+#### parse(filePath[, options])
 
+options is an object with the following defaults:
 
-Usage as a command line tool:
-
+```js
+{
+  config: '.editorconfig',
+  version: pkg.version,
+  root: '/'
+};
 ```
+
+Search to the `.editorconfig` from current directory to the root directory.
+
+Example:
+
+```js
+var editorconfig = require('editorconfig');
+var path = require('path');
+var filePath = path.join(__dirname, '/sample.js');
+var promise = editorconfig.parse(filePath);
+promise.then(function onFulfilled(result) {
+  console.log(result);
+});
+
+/*
+  {
+    indent_style: 'space',
+    indent_size: 2,
+    end_of_line: 'lf',
+    charset: 'utf-8',
+    trim_trailing_whitespace: true,
+    insert_final_newline: true,
+    tab_width: 2
+  };
+*/
+```
+
+#### parseSync(filePath[, options])
+
+Synchronous version of `editorconfig.parse()`.
+
+#### parseFromFiles(filePath, configs[, options])
+
+options is an object with the following defaults:
+
+```js
+{
+  config: '.editorconfig',
+  version: pkg.version,
+  root: '/'
+};
+```
+
+Specify the `.editorconfig`.
+
+Example:
+
+```js
+var editorconfig = require('editorconfig');
+var fs = require('fs');
+var path = require('path');
+var configPath = path.join(__dirname, '/.editorconfig');
+var configs = [
+  {
+    name: configPath,
+    contents: fs.readFileSync(configPath, 'utf8')
+  }
+];
+var filePath = path.join(__dirname, '/sample.js');
+var promise = editorconfig.parseFromFiles(filePath, configs);
+promise.then(function onFulfilled(result) {
+  console.log(result)
+});
+
+/*
+  {
+    indent_style: 'space',
+    indent_size: 2,
+    end_of_line: 'lf',
+    charset: 'utf-8',
+    trim_trailing_whitespace: true,
+    insert_final_newline: true,
+    tab_width: 2
+  };
+*/
+```
+
+#### parseFromFilesSync(filePath, configs[, options])
+
+Synchronous version of `editorconfig.parseFromFiles()`.
+
+### in Command Line
+
+```bash
 $ ./bin/editorconfig
 
     Usage: editorconfig [OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]
@@ -55,23 +139,28 @@ $ ./bin/editorconfig
 
 Example:
 
-    $ ./bin/editorconfig /home/zoidberg/humans/anatomy.md
-    charset=utf-8
-    insert_final_newline=true
-    end_of_line=lf
-    tab_width=8
-    trim_trailing_whitespace=sometimes
-
+```bash
+$ ./bin/editorconfig /home/zoidberg/humans/anatomy.md
+charset=utf-8
+insert_final_newline=true
+end_of_line=lf
+tab_width=8
+trim_trailing_whitespace=sometimes
+```
 
 ## Development
 
 To install dependencies for this package run this in the package directory:
 
-    $ npm install
+```bash
+$ npm install
+```
 
 Next, run:
 
-    $ npm link
+```bash
+$ npm link
+```
 
 The global editorconfig will now point to the files in your development
 repository instead of a globally-installed version from npm. You can now use
@@ -83,8 +172,9 @@ link again to get the latest dependencies.
 
 To test the command line interface:
 
-    $ editorconfig <filepath>
-
+```bash
+$ editorconfig <filepath>
+```
 
 # Testing
 
@@ -92,11 +182,15 @@ To test the command line interface:
 
 To run the tests:
 
-    $ npm test
+```bash
+$ npm test
+```
 
 To run the tests with increased verbosity (for debugging test failures):
 
-    $ npm run-script test-verbose
+```bash
+$ npm run-script test-verbose
+```
 
 [EditorConfig C Core]: https://github.com/editorconfig/editorconfig-core
 [EditorConfig Python Core]: https://github.com/editorconfig/editorconfig-core-py

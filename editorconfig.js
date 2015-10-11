@@ -1,7 +1,9 @@
 var os = require('os');
 var path = require('path');
+var fs = require('fs');
+var util = require('util');
 var Promise = require('bluebird');
-var whenReadFile = Promise.promisify(require('fs').readFile);
+var whenReadFile = Promise.promisify(fs.readFile);
 
 var minimatch = require('./lib/fnmatch');
 var iniparser = require('./lib/ini');
@@ -77,6 +79,34 @@ function processOptions(options, filepath) {
   };
 }
 
+function buildFullGlob(pathPrefix, glob) {
+  switch (glob.indexOf('/')) {
+    case -1: glob = "**/" + glob; break;
+    case  0: glob = glob.substring(1); break;
+  }
+  return path.join(pathPrefix, glob);
+}
+
+function extendProps(props, options) {
+  for (var key in options) {
+    var value = options[key];
+    key = key.toLowerCase();
+    if (knownProps[key]) {
+      value = value.toLowerCase();
+    }
+    try {
+      value = JSON.parse(value);
+    } catch(e) {}
+    if (typeof value === 'undefined' || value === null) {
+      // null and undefined are values specific to JSON (no special meaning
+      // in editorconfig) & should just be returned as regular strings.
+      value = String(value);
+    }
+    props[key] = value;
+  }
+  return props;
+}
+
 function parseFromFiles(filepath, files, options) {
   return getConfigsForFiles(files).then(function (configs) {
     return configs.reverse();
@@ -85,33 +115,31 @@ function parseFromFiles(filepath, files, options) {
     file.contents.forEach(function (section) {
       var glob = section[0], options = section[1];
       if (!glob) return;
-      switch (glob.indexOf('/')) {
-        case -1: glob = "**/" + glob; break;
-        case  0: glob = glob.substring(1); break;
-      }
-      var fullGlob = path.join(pathPrefix, glob);
+      var fullGlob = buildFullGlob(pathPrefix, glob);
       if (!fnmatch(filepath, fullGlob)) return;
-      for (var key in options) {
-        var value = options[key];
-        key = key.toLowerCase();
-        if (knownProps[key]) {
-          value = value.toLowerCase();
-        }
-        try {
-          value = JSON.parse(value);
-        } catch(e) {}
-        if (typeof value === 'undefined' || value === null) {
-          // null and undefined are values specific to JSON (no special meaning
-          // in editorconfig) & should just be returned as regular strings.
-          value = String(value);
-        }
-        matches[key] = value;
-      }
+      matches = extendProps(matches, options);
     });
     return matches;
   }, {}).then(function (matches) {
     return processMatches(matches, options.version);
   });
+}
+
+function parseFromFilesSync(filepath, files, options) {
+  var configs = getConfigsForFilesSync(files);
+  configs.reverse();
+  var matches = {};
+  configs.forEach(function(config) {
+    var pathPrefix = path.dirname(config.name);
+    config.contents.forEach(function(section) {
+      var glob = section[0], options = section[1];
+      if (!glob) return;
+      var fullGlob = buildFullGlob(pathPrefix, glob);
+      if (!fnmatch(filepath, fullGlob)) return;
+      matches = extendProps(matches, options);
+    });
+  });
+  return processMatches(matches, options.version);
 }
 
 function StopReduce(array) {
@@ -136,6 +164,22 @@ function getConfigsForFiles(files) {
   });
 }
 
+function getConfigsForFilesSync(files) {
+  var configs = [];
+  for (var i in files) {
+    var file = files[i];
+    var contents = iniparser.parseString(file.contents);
+    configs.push({
+      name: file.name,
+      contents: contents
+    });
+    if ((contents[0][1].root || '').toLowerCase() === 'true') {
+      break;
+    }
+  };
+  return configs;
+}
+
 function readConfigFiles(filepaths) {
   return Promise.map(filepaths, function (path) {
     return whenReadFile(path, 'utf-8').catch(function () {
@@ -146,12 +190,32 @@ function readConfigFiles(filepaths) {
   });
 }
 
+function readConfigFilesSync(filepaths) {
+  var files = [];
+  var file;
+  filepaths.forEach(function(filepath) {
+    try {
+      file = fs.readFileSync(filepath, 'utf8');
+    } catch (e) {
+      file = '';
+    }
+    files.push({name: filepath, contents: file});
+  });
+  return files;
+}
+
 module.exports.parseFromFiles = function (filepath, files, options) {
   return new Promise (function (resolve, reject) {
     filepath = path.resolve(filepath);
     options = processOptions(options, filepath);
-    resolve(parseFromFiles(filepath, files, option));
+    resolve(parseFromFiles(filepath, files, options));
   });
+};
+
+module.exports.parseFromFilesSync = function (filepath, files, options) {
+  filepath = path.resolve(filepath);
+  options = processOptions(options, filepath);
+  return parseFromFilesSync(filepath, files, options);
 };
 
 module.exports.parse = function (filepath, options) {
@@ -162,4 +226,12 @@ module.exports.parse = function (filepath, options) {
     var files = readConfigFiles(filepaths);
     resolve(parseFromFiles(filepath, files, options));
   });
+};
+
+module.exports.parseSync = function (filepath, options) {
+    filepath = path.resolve(filepath);
+    options = processOptions(options, filepath);
+    var filepaths = getConfigFileNames(filepath, options);
+    var files = readConfigFilesSync(filepaths);
+    return parseFromFilesSync(filepath, files, options);
 };
