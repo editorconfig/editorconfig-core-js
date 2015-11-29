@@ -1,6 +1,6 @@
 {
   "name": "editorconfig",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "EditorConfig File Locator and Interpreter for Node.js",
   "keywords": [
     "editorconfig",
@@ -20,7 +20,7 @@
     "pretest": "cmake .",
     "test": "npm run lint && ctest .",
     "test-verbose": "npm run lint && ctest -VV --output-on-failure .",
-    "lint": "node_modules/.bin/eclint check --indent_size ignore editorconfig.js README.md \"bin/**\" \"lib/**\""
+    "lint": "eclint check --indent_size ignore editorconfig.js README.md \"bin/**\" \"lib/**\""
   },
   "repository": {
     "type": "git",
@@ -33,14 +33,14 @@
     "url": "http://editorconfig.mit-license.org/2012"
   },
   "dependencies": {
-    "bluebird": "^2.3.6",
-    "commander": "~1.1.1",
-    "lru-cache": "~2.0.0",
-    "sigmund": "~1.0.0"
+    "bluebird": "^3.0.5",
+    "commander": "^2.9.0",
+    "lru-cache": "^3.2.0",
+    "sigmund": "^1.0.1"
   },
   "devDependencies": {
-    "eclint": "^0.2.6",
-    "mocha": "^2.3.3",
-    "should": "^7.1.0"
+    "eclint": "^1.1.5",
+    "mocha": "^2.3.4",
+    "should": "^7.1.1"
   }
 }
