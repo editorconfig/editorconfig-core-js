@@ -31,10 +31,7 @@
   },
   "bugs": "https://github.com/editorconfig/editorconfig-core-js/issues",
   "author": "EditorConfig Team",
-  "license": {
-    "type": "MIT",
-    "url": "http://editorconfig.mit-license.org/2012"
-  },
+  "license": "MIT",
   "dependencies": {
     "bluebird": "^3.0.5",
     "commander": "^2.9.0",
