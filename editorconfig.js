@@ -1,13 +1,13 @@
+var Promise = require('bluebird');
+var fs = require('fs');
 var os = require('os');
 var path = require('path');
-var fs = require('fs');
 var util = require('util');
-var Promise = require('bluebird');
 var whenReadFile = Promise.promisify(fs.readFile);
 
-var minimatch = require('./lib/fnmatch');
-var iniparser = require('./lib/ini');
 var Version = require('./lib/version');
+var iniparser = require('./lib/ini');
+var minimatch = require('./lib/fnmatch');
 var pkg = require('./package.json');
 
 var knownProps = [
