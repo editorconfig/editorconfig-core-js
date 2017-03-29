@@ -33,7 +33,7 @@ function getConfigFileNames(filepath, options) {
   do {
     filepath = path.dirname(filepath);
     paths.push(path.join(filepath, options.config));
-  } while (filepath !== options.root);
+  } while (filepath !== options.root && filepath !== path.dirname(filepath));
   return paths;
 }
 
