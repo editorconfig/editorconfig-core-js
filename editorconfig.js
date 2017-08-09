@@ -235,3 +235,5 @@ module.exports.parseSync = function (filepath, options) {
     var files = readConfigFilesSync(filepaths);
     return parseFromFilesSync(filepath, files, options);
 };
+
+module.exports.parseString = iniparser.parseString;
