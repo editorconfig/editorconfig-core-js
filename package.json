@@ -33,7 +33,6 @@
   "author": "EditorConfig Team",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^3.0.5",
     "commander": "^2.9.0",
     "lru-cache": "^3.2.0",
     "semver": "^5.1.0",
