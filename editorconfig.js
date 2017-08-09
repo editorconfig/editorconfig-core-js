@@ -3,7 +3,8 @@ var os = require('os');
 var path = require('path');
 var semver = require('semver');
 var util = require('util');
-var whenReadFile = Promise.promisify(fs.readFile);
+var pify = require('pify');
+var whenReadFile = pify(fs.readFile);
 
 var iniparser = require('./lib/ini');
 var minimatch = require('./lib/fnmatch');
