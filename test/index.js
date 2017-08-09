@@ -82,3 +82,22 @@ describe('parseFromFiles', function() {
     expected.should.eql(editorconfig.parseFromFilesSync(target, configs));
   });
 });
+
+describe('parseString', function() {
+  it('sync', function() {
+    var expected = {
+      indent_style: 'space',
+      indent_size: 2,
+      tab_width: 2,
+      end_of_line: 'lf',
+      charset: 'utf-8',
+      trim_trailing_whitespace: true,
+      insert_final_newline: true,
+    };
+
+    var configPath = path.resolve(__dirname, '../.editorconfig');
+    var contents = fs.readFileSync(configPath, 'utf8');
+
+    expected.should.eql(editorconfig.parseString(contents));
+  });
+});
