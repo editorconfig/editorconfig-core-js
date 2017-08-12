@@ -1,6 +1,6 @@
 {
   "name": "editorconfig",
-  "version": "0.13.3",
+  "version": "0.14.0",
   "description": "EditorConfig File Locator and Interpreter for Node.js",
   "keywords": [
     "editorconfig",
@@ -33,9 +33,9 @@
   "author": "EditorConfig Team",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^3.0.5",
     "commander": "^2.9.0",
     "lru-cache": "^3.2.0",
+    "pify": "^3.0.0",
     "semver": "^5.1.0",
     "sigmund": "^1.0.1"
   },
