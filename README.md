@@ -10,7 +10,7 @@ The EditorConfig JavaScript core will provide the same functionality as the
 
 You need [node][] to use this package.
 
-To install this package (system-wide):
+To install the package locally:
 
 ```bash
 $ npm install editorconfig
