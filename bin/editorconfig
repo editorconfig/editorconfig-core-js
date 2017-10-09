@@ -2,7 +2,6 @@
 
 var path = require("path");
 var program = require("commander");
-var Promise = require("bluebird");
 
 var editorconfig = require("../editorconfig");
 var package = require("../package.json");
