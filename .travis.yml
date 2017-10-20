@@ -3,15 +3,11 @@ sudo: false
 language: node_js
 
 node_js:
-  - 4
   - 6
   - 8
 
-before_script:
-  - npm run pretest
-
 script:
-  - npm run test-verbose
+  - npm run test:ci
 
 notifications:
   email:

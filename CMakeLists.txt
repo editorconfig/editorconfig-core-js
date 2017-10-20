@@ -12,5 +12,5 @@ set(NODE node CACHE STRING "Node.js command")
 
 enable_testing()
 
-set(EDITORCONFIG_CMD ${NODE} ${PROJECT_SOURCE_DIR}/bin/editorconfig)
+set(EDITORCONFIG_CMD ${NODE} ${PROJECT_SOURCE_DIR}/dist/bin/editorconfig)
 add_subdirectory(tests)
