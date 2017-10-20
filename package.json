@@ -1,12 +1,12 @@
 {
   "name": "editorconfig",
-  "version": "0.14.2",
+  "version": "0.15.0",
   "description": "EditorConfig File Locator and Interpreter for Node.js",
   "keywords": [
     "editorconfig",
     "core"
   ],
-  "main": "editorconfig.js",
+  "main": "index.js",
   "bin": {
     "editorconfig": "bin/editorconfig"
   },
@@ -20,10 +20,19 @@
     "lib": "./lib"
   },
   "scripts": {
-    "pretest": "cmake .",
-    "test": "npm run lint && ctest .",
-    "test-verbose": "npm run lint && ctest -VV --output-on-failure .",
-    "lint": "eclint check --indent_size ignore editorconfig.js README.md \"bin/**\" \"lib/**\""
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "pretest": "npm run lint && npm run build && npm run copy && cmake .",
+    "test": "ctest .",
+    "pretest:ci": "npm run pretest",
+    "test:ci": "ctest -VV --output-on-failure .",
+    "lint": "npm run eclint && npm run tslint",
+    "eclint": "eclint check --indent_size ignore \"src/**\"",
+    "tslint": "tslint --project tslint.json",
+    "copy": "cpy package.json .npmignore LICENSE README.md CHANGELOG.md dist && cpy src/bin/* dist/bin && cpy src/lib/fnmatch*.* dist/lib",
+    "prepub": "npm run lint && npm run build && npm run copy",
+    "pub": "npm publish ./dist"
   },
   "repository": {
     "type": "git",
@@ -33,15 +42,21 @@
   "author": "EditorConfig Team",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^3.0.5",
-    "commander": "^2.9.0",
-    "lru-cache": "^3.2.0",
-    "semver": "^5.1.0",
+    "@types/commander": "^2.11.0",
+    "@types/semver": "^5.4.0",
+    "commander": "^2.11.0",
+    "lru-cache": "^4.1.1",
+    "semver": "^5.4.1",
     "sigmund": "^1.0.1"
   },
   "devDependencies": {
-    "eclint": "^1.1.5",
-    "mocha": "^2.3.4",
-    "should": "^7.1.1"
+    "@types/mocha": "^2.2.43",
+    "cpy-cli": "^1.0.1",
+    "eclint": "^2.4.3",
+    "mocha": "^4.0.1",
+    "rimraf": "^2.6.2",
+    "should": "^13.1.2",
+    "tslint": "^5.7.0",
+    "typescript": "^2.5.3"
   }
 }

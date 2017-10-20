@@ -1,103 +1,74 @@
-var editorconfig = require('../');
-var fs = require('fs');
-var path = require('path');
-var should = require('should');
+import * as fs from 'fs'
+import * as path from 'path'
+import 'should'
 
-describe('parse', function() {
-  it('async', function() {
-    var expected = {
-      indent_style: 'space',
-      indent_size: 2,
-      end_of_line: 'lf',
-      charset: 'utf-8',
-      trim_trailing_whitespace: true,
-      insert_final_newline: true,
-      tab_width: 2
-    };
-    var target = path.join(__dirname, '/app.js');
-    var promise = editorconfig.parse(target);
-    return promise.then(function onFulfilled(result) {
-      expected.should.eql(result);
-    });
-  });
+import * as editorconfig from './'
 
-  it('sync', function() {
-    var expected = {
-      indent_style: 'space',
-      indent_size: 2,
-      end_of_line: 'lf',
-      charset: 'utf-8',
-      trim_trailing_whitespace: true,
-      insert_final_newline: true,
-      tab_width: 2
-    };
-    var target = path.join(__dirname, '/app.js');
-    expected.should.eql(editorconfig.parseSync(target));
-  });
-});
+describe('parse', () => {
+  const expected: editorconfig.KnownProps = {
+    indent_style: 'space',
+    indent_size: 2,
+    end_of_line: 'lf',
+    charset: 'utf-8',
+    trim_trailing_whitespace: true,
+    insert_final_newline: true,
+    tab_width: 2,
+  }
+  const target = path.join(__dirname, '/app.js')
 
-describe('parseFromFiles', function() {
-  it('async', function() {
-    var expected = {
-      indent_style: 'space',
-      indent_size: 2,
-      tab_width: 2,
-      end_of_line: 'lf',
-      charset: 'utf-8',
-      trim_trailing_whitespace: true,
-      insert_final_newline: true,
-    };
-    var configs = [];
-    var configPath = path.resolve(__dirname, '../.editorconfig');
-    var config = {
-      name: configPath,
-      contents: fs.readFileSync(configPath, 'utf8')
-    };
-    configs.push(config);
-    var target = path.join(__dirname, '/app.js');
-    var promise = editorconfig.parseFromFiles(target, configs);
-    return promise.then(function onFulfilled(result) {
-      expected.should.eql(result);
-    });
-  });
+  it('async', async () => {
+    expected.should.eql(await editorconfig.parse(target))
+  })
 
-  it('sync', function() {
-    var expected = {
-      indent_style: 'space',
-      indent_size: 2,
-      tab_width: 2,
-      end_of_line: 'lf',
-      charset: 'utf-8',
-      trim_trailing_whitespace: true,
-      insert_final_newline: true,
-    };
-    var configs = [];
-    var configPath = path.resolve(__dirname, '../.editorconfig');
-    var config = {
-      name: configPath,
-      contents: fs.readFileSync(configPath, 'utf8')
-    };
-    configs.push(config);
-    var target = path.join(__dirname, '/app.js');
-    expected.should.eql(editorconfig.parseFromFilesSync(target, configs));
-  });
-});
+  it('sync', () => {
+    expected.should.eql(editorconfig.parseSync(target))
+  })
+})
 
-describe('parseString', function() {
-  it('sync', function() {
-    var expected = {
-      indent_style: 'space',
-      indent_size: 2,
-      tab_width: 2,
-      end_of_line: 'lf',
-      charset: 'utf-8',
-      trim_trailing_whitespace: true,
-      insert_final_newline: true,
-    };
+describe('parseFromFiles', () => {
+  const expected: editorconfig.KnownProps = {
+    indent_style: 'space',
+    indent_size: 2,
+    tab_width: 2,
+    end_of_line: 'lf',
+    charset: 'utf-8',
+    trim_trailing_whitespace: true,
+    insert_final_newline: true,
+  }
+  const configs: editorconfig.ECFile[] = []
+  const configPath = path.resolve(__dirname, '../.editorconfig')
+  configs.push({
+    name: configPath,
+    contents: fs.readFileSync(configPath, 'utf8'),
+  })
+  const target = path.join(__dirname, '/app.js')
 
-    var configPath = path.resolve(__dirname, '../.editorconfig');
-    var contents = fs.readFileSync(configPath, 'utf8');
+  it('async', async () => {
+    expected.should.eql(
+      await editorconfig.parseFromFiles(target, Promise.resolve(configs)),
+    )
+  })
 
-    expected.should.eql(editorconfig.parseString(contents));
-  });
-});
+  it('sync', () => {
+    expected.should.eql(editorconfig.parseFromFilesSync(target, configs))
+  })
+})
+
+describe('parseString', () => {
+  const expected: editorconfig.KnownProps = {
+    indent_style: 'space',
+    indent_size: 2,
+    tab_width: 2,
+    end_of_line: 'lf',
+    charset: 'utf-8',
+    trim_trailing_whitespace: true,
+    insert_final_newline: true,
+  }
+
+  const configPath = path.resolve(__dirname, '../.editorconfig')
+  const contents = fs.readFileSync(configPath, 'utf8')
+
+  it('sync', () => {
+    expected.should.eql(editorconfig.parseString(contents))
+  })
+})

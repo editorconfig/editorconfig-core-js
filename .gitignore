@@ -1,6 +1,9 @@
+dist/
 node_modules/
 CTest*
 *.sln
+*.tgz
+*.tmp
 *.vcxproj*
 *.log
 [Tt]ests/
