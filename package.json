@@ -7,9 +7,6 @@
     "core"
   ],
   "main": "index.js",
-  "bin": {
-    "editorconfig": "bin/editorconfig"
-  },
   "contributors": [
     "Hong Xu (topbug.net)",
     "Jed Mao (https://github.com/jedmao/)",
