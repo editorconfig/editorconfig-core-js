@@ -161,10 +161,12 @@ To install dependencies for this package run this in the package directory:
 $ npm install
 ```
 
-Next, run:
+Next, run the following commands:
 
 ```bash
-$ npm link
+$ npm run build
+$ npm run copy
+$ npm link ./dist
 ```
 
 The global editorconfig will now point to the files in your development
