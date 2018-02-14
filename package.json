@@ -26,7 +26,7 @@
     "test:ci": "ctest -VV --output-on-failure .",
     "lint": "npm run eclint && npm run tslint",
     "eclint": "eclint check --indent_size ignore \"src/**\"",
-    "tslint": "tslint --project tslint.json",
+    "tslint": "tslint --project tsconfig.json",
     "copy": "cpy package.json .npmignore LICENSE README.md CHANGELOG.md dist && cpy src/bin/* dist/bin && cpy src/lib/fnmatch*.* dist/lib",
     "prepub": "npm run lint && npm run build && npm run copy",
     "pub": "npm publish ./dist"
