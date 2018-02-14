@@ -39,6 +39,7 @@
   "author": "EditorConfig Team",
   "license": "MIT",
   "dependencies": {
+    "@types/node": "^9.4.6",
     "@types/semver": "^5.5.0",
     "commander": "^2.14.1",
     "lru-cache": "^4.1.1",
