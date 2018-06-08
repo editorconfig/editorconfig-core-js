@@ -27,7 +27,7 @@
     "lint": "npm run eclint && npm run tslint",
     "eclint": "eclint check --indent_size ignore \"src/**\"",
     "tslint": "tslint --project tsconfig.json --exclude package.json",
-    "copy": "cpy .npmignore LICENSE README.md CHANGELOG.md dist && cpy src/bin/* dist/bin && cpy src/lib/fnmatch*.* dist/lib",
+    "copy": "cpy .npmignore LICENSE README.md CHANGELOG.md dist && cpy bin/* dist/bin && cpy src/lib/fnmatch*.* dist/src/lib",
     "prepub": "npm run lint && npm run build && npm run copy",
     "pub": "npm publish ./dist"
   },
