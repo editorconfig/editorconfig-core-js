@@ -3,8 +3,7 @@ import * as program from 'commander'
 
 import * as editorconfig from './'
 
-// tslint:disable-next-line:no-var-requires
-const pkg = require('./package.json')
+import pkg from '../package.json'
 
 export default function cli(args: string[]) {
   program.version('EditorConfig Node.js Core Version ' + pkg.version)

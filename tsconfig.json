@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
     "outDir": "dist",
     "declaration": true,
+    "esModuleInterop": true,
     "target": "es5",
     "lib": ["es6"],
     "sourceMap": false,
     "moduleResolution": "node",
-    "rootDir": "src",
+    "resolveJsonModule": true,
+    "rootDir": ".",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -18,7 +21,8 @@
   "exclude": [
     "node_modules",
     "dist",
-    "src/setupTests.d.ts",
-    "src/setupTests.ts"
+  ],
+  "include": [
+    "src/**/*.ts"
   ]
 }

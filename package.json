@@ -6,7 +6,7 @@
     "editorconfig",
     "core"
   ],
-  "main": "index.js",
+  "main": "src/index.js",
   "contributors": [
     "Hong Xu (topbug.net)",
     "Jed Mao (https://github.com/jedmao/)",
@@ -26,8 +26,8 @@
     "test:ci": "ctest -VV --output-on-failure .",
     "lint": "npm run eclint && npm run tslint",
     "eclint": "eclint check --indent_size ignore \"src/**\"",
-    "tslint": "tslint --project tsconfig.json",
-    "copy": "cpy package.json .npmignore LICENSE README.md CHANGELOG.md dist && cpy src/bin/* dist/bin && cpy src/lib/fnmatch*.* dist/lib",
+    "tslint": "tslint --project tsconfig.json --exclude package.json",
+    "copy": "cpy .npmignore LICENSE README.md CHANGELOG.md dist && cpy src/bin/* dist/bin && cpy src/lib/fnmatch*.* dist/lib",
     "prepub": "npm run lint && npm run build && npm run copy",
     "pub": "npm publish ./dist"
   },
