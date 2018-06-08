@@ -1,4 +1,3 @@
 *.log
 .npmignore
 *.test.*
-src/

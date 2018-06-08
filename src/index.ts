@@ -2,13 +2,12 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as semver from 'semver'
 
-import minimatch = require('./lib/fnmatch')
+import minimatch from './lib/fnmatch'
 import { parseString, ParseStringResult } from './lib/ini'
 
 export { parseString }
 
-// tslint:disable-next-line:no-var-requires
-const pkg = require('./package.json')
+import pkg from '../package.json'
 
 export interface KnownProps {
   end_of_line?: 'lf' | 'crlf' | 'unset'
