@@ -1,3 +1,6 @@
+## 0.15.2
+- Fix publish.
+
 ## 0.15.1
 - Update dependencies.
 
