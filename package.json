@@ -39,8 +39,6 @@
   "author": "EditorConfig Team",
   "license": "MIT",
   "dependencies": {
-    "@types/node": "^10.11.7",
-    "@types/semver": "^5.5.0",
     "commander": "^2.19.0",
     "lru-cache": "^4.1.3",
     "semver": "^5.6.0",
@@ -48,6 +46,8 @@
   },
   "devDependencies": {
     "@types/mocha": "^5.2.5",
+    "@types/node": "^10.11.7",
+    "@types/semver": "^5.5.0",
     "cpy-cli": "^2.0.0",
     "eclint": "^2.8.0",
     "mocha": "^5.2.0",
