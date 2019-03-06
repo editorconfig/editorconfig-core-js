@@ -1,3 +1,7 @@
+## 0.15.3
+- Move @types dependencies to dev dependencies.
+- Upgrade dependencies.
+
 ## 0.15.2
 - Fix publish.
 
