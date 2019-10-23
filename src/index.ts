@@ -1,10 +1,12 @@
+import INIParser, { Property, Sections } from '@jedmao/ini-parser'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as semver from 'semver'
 
 import minimatch from './lib/fnmatch'
-import { parseString, ParseStringResult } from './lib/ini'
 
+const parser = new INIParser()
+const parseString = parser.parse
 export { parseString }
 
 import pkg from '../package.json'
@@ -26,7 +28,7 @@ export interface ECFile {
 
 export interface FileConfig {
   name: string
-  contents: ParseStringResult
+  contents: Sections
 }
 
 export interface ParseOptions {
@@ -115,25 +117,17 @@ function buildFullGlob(pathPrefix: string, glob: string) {
   return path.join(pathPrefix, glob)
 }
 
-function extendProps(props: {} = {}, options: {} = {}) {
-  for (const key in options) {
-    if (options.hasOwnProperty(key)) {
-      const value = options[key]
-      const key2 = key.toLowerCase()
-      let value2 = value
-      if (knownProps[key2]) {
-        value2 = value.toLowerCase()
-      }
-      try {
-        value2 = JSON.parse(value)
-      } catch (e) {}
-      if (typeof value === 'undefined' || value === null) {
-        // null and undefined are values specific to JSON (no special meaning
-        // in editorconfig) & should just be returned as regular strings.
-        value2 = String(value)
-      }
-      props[key2] = value2
-    }
+function extendProps(props: {}, iniProps: Property[]) {
+  for (const prop of iniProps) {
+    const lkey = prop.key.toLowerCase()
+    const value = (knownProps[lkey])
+      ? prop.value.toLowerCase && prop.value.toLowerCase()
+      : prop.value
+    props[lkey] = (typeof value === 'undefined' || value === null)
+      // null and undefined are values specific to JSON (no special meaning
+      // in editorconfig) & should just be returned as regular strings.
+      ? String(value)
+      : value
   }
   return props
 }
@@ -149,17 +143,18 @@ function parseFromConfigs(
       .reduce(
         (matches: KnownProps, file) => {
           const pathPrefix = path.dirname(file.name)
-          file.contents.forEach((section) => {
-            const glob = section[0]
-            const options2 = section[1]
-            if (!glob) {
+          file.contents.items.forEach((section) => {
+            if (!section.name) {
               return
             }
-            const fullGlob = buildFullGlob(pathPrefix, glob)
+            const fullGlob = buildFullGlob(pathPrefix, section.name)
             if (!fnmatch(filepath, fullGlob)) {
               return
             }
-            matches = extendProps(matches, options2)
+            matches = extendProps(
+              matches,
+              section.nodes.filter((node) => (node as Property).key) as Property[],
+            )
           })
           return matches
         },
@@ -170,21 +165,29 @@ function parseFromConfigs(
 }
 
 function getConfigsForFiles(files: ECFile[]) {
-  const configs = []
-  for (const i in files) {
-    if (files.hasOwnProperty(i)) {
-      const file = files[i]
-      const contents = parseString(file.contents as string)
-      configs.push({
-        name: file.name,
-        contents,
-      })
-      if ((contents[0][1].root || '').toLowerCase() === 'true') {
-        break
-      }
+  const configs: FileConfig[] = []
+  for (const file of files) {
+    if (!file.contents) {
+      continue
+    }
+    const contents = parser.parse(file.contents as string)
+    configs.push({
+      name: file.name,
+      contents,
+    })
+    if (isRootTrue(contents)) {
+      break
     }
   }
   return configs
+
+  function isRootTrue(sections: Sections) {
+    return sections.items.some(
+      (section) => !section.name && section.nodes.some(
+        (prop: Property) => prop.key === 'root' && prop.value === true,
+      ),
+    )
+  }
 }
 
 async function readConfigFiles(filepaths: string[]) {

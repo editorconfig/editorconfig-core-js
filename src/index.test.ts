@@ -1,6 +1,6 @@
+import { expect } from 'chai'
 import * as fs from 'fs'
 import * as path from 'path'
-import 'should'
 
 import * as editorconfig from './'
 
@@ -17,11 +17,11 @@ describe('parse', () => {
   const target = path.join(__dirname, '/app.js')
 
   it('async', async () => {
-    expected.should.eql(await editorconfig.parse(target))
+    expect(await editorconfig.parse(target)).to.eq(expected)
   })
 
   it('sync', () => {
-    expected.should.eql(editorconfig.parseSync(target))
+    expect(editorconfig.parseSync(target)).to.eq(expected)
   })
 })
 
@@ -44,13 +44,13 @@ describe('parseFromFiles', () => {
   const target = path.join(__dirname, '/app.js')
 
   it('async', async () => {
-    expected.should.eql(
+    expect(
       await editorconfig.parseFromFiles(target, Promise.resolve(configs)),
-    )
+    ).to.eq(expected)
   })
 
   it('sync', () => {
-    expected.should.eql(editorconfig.parseFromFilesSync(target, configs))
+    expect(editorconfig.parseFromFilesSync(target, configs)).to.eq(expected)
   })
 })
 
@@ -69,6 +69,6 @@ describe('parseString', () => {
   const contents = fs.readFileSync(configPath, 'utf8')
 
   it('sync', () => {
-    expected.should.eql(editorconfig.parseString(contents))
+    expect(editorconfig.parseString(contents)).to.eq(expected)
   })
 })
