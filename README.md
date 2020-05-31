@@ -44,14 +44,14 @@ Search for `.editorconfig` starting from the current directory to the root direc
 Example:
 
 ```js
-var editorconfig = require('editorconfig');
-var path = require('path');
-var filePath = path.join(__dirname, '/sample.js');
-var promise = editorconfig.parse(filePath);
-promise.then(function onFulfilled(result) {
-  console.log(result);
-});
+const editorconfig = require('editorconfig');
+const path = require('path');
 
+const filePath = path.join(__dirname, 'sample.js');
+
+(async () => {
+  console.log(await editorconfig.parse(filePath));
+})();
 /*
   {
     indent_style: 'space',
@@ -91,22 +91,23 @@ Specify the `.editorconfig`.
 Example:
 
 ```js
-var editorconfig = require('editorconfig');
-var fs = require('fs');
-var path = require('path');
-var configPath = path.join(__dirname, '/.editorconfig');
-var configs = [
+const editorconfig = require('editorconfig');
+const fs = require('fs');
+const path = require('path');
+
+const configPath = path.join(__dirname, '.editorconfig');
+const configs = [
   {
     name: configPath,
     contents: fs.readFileSync(configPath, 'utf8')
   }
 ];
-var filePath = path.join(__dirname, '/sample.js');
-var promise = editorconfig.parseFromFiles(filePath, configs);
-promise.then(function onFulfilled(result) {
-  console.log(result)
-});
 
+const filePath = path.join(__dirname, '/sample.js');
+
+(async () => {
+  console.log(await editorconfig.parseFromFiles(filePath, configs))
+})();
 /*
   {
     indent_style: 'space',
