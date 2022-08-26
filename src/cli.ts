@@ -1,29 +1,30 @@
 // tslint:disable:no-console
-import program from 'commander'
+import { createCommand } from 'commander'
 
 import * as editorconfig from './'
 
 import pkg from '../package.json'
 
+const program = createCommand()
+
 export default function cli(args: string[]) {
-  program.version('EditorConfig Node.js Core Version ' + pkg.version)
+  program.version(
+    'EditorConfig Node.js Core Version ' + pkg.version,
+    '-v, --version',
+    'Display version information',
+  )
 
   program
     .usage([
         '[OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]',
-        program._version,
         'FILEPATH can be a hyphen (-) if you want path(s) to be read from stdin.',
       ].join('\n\n  '))
     .option('-f <path>',     'Specify conf filename other than \'.editorconfig\'')
     .option('-b <version>',  'Specify version (used by devs to test compatibility)')
-    .option('-v, --version', 'Display version information')
     .parse(args)
 
-  // Throw away the native -V flag in lieu of the one we've manually specified
-  // to adhere to testing requirements
-  program.options.shift()
-
   const files = program.args
+  const opts = program.opts()
 
   if (!files.length) {
     program.help()
@@ -31,8 +32,8 @@ export default function cli(args: string[]) {
 
   files
     .map((filePath) => editorconfig.parse(filePath, {
-      config: program.F,
-      version: program.B,
+      config: opts.f,
+      version: opts.b,
     }))
     .forEach((parsing, i, { length }) => {
       parsing.then((parsed) => {
