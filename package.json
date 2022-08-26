@@ -18,8 +18,9 @@
   },
   "scripts": {
     "clean": "rimraf dist",
+    "parser": "peggy src/lib/iniFile.peggy",
     "prebuild": "npm run clean",
-    "build": "tsc",
+    "build": "npm run parser && tsc",
     "pretest": "npm run lint && npm run build && npm run copy && cmake .",
     "test": "ctest .",
     "pretest:ci": "npm run pretest",
@@ -51,6 +52,7 @@
     "cpy-cli": "^4.2.0",
     "eclint": "^2.8.1",
     "mocha": "^10.0.0",
+    "peggy": "2.0.1",
     "rimraf": "^3.0.2",
     "should": "^13.2.3",
     "tslint": "^5.20.1",

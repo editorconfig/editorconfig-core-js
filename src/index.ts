@@ -174,7 +174,7 @@ function getConfigsForFiles(files: ECFile[]) {
   for (const i in files) {
     if (files.hasOwnProperty(i)) {
       const file = files[i]
-      const contents = parseString(file.contents as string)
+      const contents = parseString(file.contents as string, file.name)
       configs.push({
         name: file.name,
         contents,

@@ -69,6 +69,6 @@ describe('parseString', () => {
   const contents = fs.readFileSync(configPath, 'utf8')
 
   it('sync', () => {
-    expected.should.eql(editorconfig.parseString(contents))
+    expected.should.eql(editorconfig.parseString(contents, configPath))
   })
 })

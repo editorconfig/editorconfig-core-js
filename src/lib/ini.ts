@@ -1,19 +1,6 @@
-// Based on iniparser by shockie <https://npmjs.org/package/iniparser>
-
 import * as fs from 'fs'
 import { URL } from 'url'
-
-/**
- * define the possible values:
- * section: [section]
- * param: key=value
- * comment: ;this is a comment
- */
-const regex = {
-  section: /^\s*\[(([^#;]|\\#|\\;)+)\]\s*([#;].*)?$/,
-  param: /^\s*([\w\.\-\_]+)\s*[=:]\s*(.*?)\s*([#;].*)?$/,
-  comment: /^\s*[#;].*$/,
-}
+import { parse as peggyParse } from './iniFile'
 
 /**
  * Parses an .ini file
@@ -27,40 +14,28 @@ export async function parse(file: string | number | Buffer | URL) {
           reject(err)
           return
         }
-        resolve(parseString(data))
+        resolve(parseString(data, file))
       })
     },
   )
 }
 
 export function parseSync(file: string | number | Buffer | URL) {
-  return parseString(fs.readFileSync(file, 'utf8'))
+  return parseString(fs.readFileSync(file, 'utf8'), file)
 }
 
 export type SectionName = string | null
 export interface SectionBody { [key: string]: string }
 export type ParseStringResult = Array<[SectionName, SectionBody]>
 
-export function parseString(data: string): ParseStringResult {
-  let sectionBody: SectionBody = {}
-  let sectionName: SectionName = null
-  const value: ParseStringResult = [[sectionName, sectionBody]]
-  const lines = data.split(/\r\n|\r|\n/)
-  lines.forEach((line) => {
-    let match: RegExpMatchArray | null
-    if (regex.comment.test(line)) {
-      return
+export function parseString(data: string, file: string | number | Buffer | URL): ParseStringResult {
+  const grammarSource = String(file)
+  try {
+    return peggyParse(data, { grammarSource })
+  } catch (er) {
+    if (typeof er.format === 'function') {
+      er.message = er.format([{ source: grammarSource, text: data }])
     }
-    if (regex.param.test(line)) {
-      match = line.match(regex.param)
-      sectionBody[(match as RegExpMatchArray)[1]] =
-        (match as RegExpMatchArray)[2]
-    } else if (regex.section.test(line)) {
-      match = line.match(regex.section)
-      sectionName = (match as RegExpMatchArray)[1]
-      sectionBody = {}
-      value.push([sectionName, sectionBody])
-    }
-  })
-  return value
+    throw er
+  }
 }
