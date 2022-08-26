@@ -1,7 +1,6 @@
 # EditorConfig JavaScript Core
 
-[![Build Status](https://travis-ci.org/editorconfig/editorconfig-core-js.svg?branch=master)](https://travis-ci.org/editorconfig/editorconfig-core-js)
-[![dependencies Status](https://david-dm.org/editorconfig/editorconfig-core-js/status.svg)](https://david-dm.org/editorconfig/editorconfig-core-js)
+[![Tests](https://github.com/editorconfig/editorconfig-core-js/actions/workflows/node.js.yml/badge.svg)](https://github.com/editorconfig/editorconfig-core-js/actions/workflows/node.js.yml)
 
 The EditorConfig JavaScript core will provide the same functionality as the
 [EditorConfig C Core][] and [EditorConfig Python Core][].
