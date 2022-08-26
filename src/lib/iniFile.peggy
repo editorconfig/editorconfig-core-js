@@ -1,3 +1,17 @@
+{{
+// We're only claiming to support node 12.22+, which has Object.fromEntries,
+// but with this addition, the tests pass on node 8 still.  However, the build
+// infrastructure won't work on pre-12, so we aren't testing it in CI.
+const toObject = (typeof Object.fromEntries === 'function')
+  ? (pairs) => Object.fromEntries(pairs)
+  : (pairs) => {
+    const ret = {}
+    for (const p of pairs) {
+      ret[p[0]] = p[1]
+    }
+    return ret
+  }
+}}
 File
   = BOM? preamble:Pairs sections:Section* {
       return [[null, preamble], ...sections];
@@ -17,7 +31,7 @@ Glob
 
 Pairs
   = lines:(Pair / BlankOrComment)* {
-      return Object.fromEntries(lines.filter(lin => lin));
+      return toObject(lines.filter(lin => lin));
     }
 
 Pair
