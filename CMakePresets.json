@@ -1,0 +1,27 @@
+{
+  "version": 5,
+  "configurePresets": [
+    {
+      "name": "default"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "Test",
+      "configurePreset": "default",
+      "configuration": "Release",
+      "output": {
+        "shortProgress": true,
+        "outputOnFailure": true
+      },
+      "filter": {
+        "exclude": {
+          "name": "braces_closing_in_beginning"
+        }
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    }
+  ]
+}

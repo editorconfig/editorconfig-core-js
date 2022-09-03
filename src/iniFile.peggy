@@ -23,7 +23,10 @@ Section
   = name:Header pairs:Pairs { return [name, pairs]; }
 
 Header
-  = _ "[" @$Glob* "]" TrailingComment? EOL
+  = _ "[" glob:$Glob* "]" TrailingComment? EOL {
+    // minimatch wants an extra set of backslashes for `\\` in the input file.
+    return glob.replace(/\\\\/g, '\\\\\\\\')
+  }
 
 // Cheating, to avoid parsing glob edge cases
 Glob

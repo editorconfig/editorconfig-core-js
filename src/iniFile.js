@@ -213,10 +213,14 @@ function peg$parse(input, options) {
       return [[null, preamble], ...sections];
     };
   var peg$f1 = function(name, pairs) { return [name, pairs]; };
-  var peg$f2 = function(lines) {
+  var peg$f2 = function(glob) {
+    // minimatch wants an extra set of backslashes for `\\` in the input file.
+    return glob.replace(/\\\\/g, '\\\\\\\\')
+  };
+  var peg$f3 = function(lines) {
       return toObject(lines.filter(lin => lin));
     };
-  var peg$f3 = function() { return undefined };
+  var peg$f4 = function() { return undefined };
   var peg$currPos = 0;
   var peg$savedPos = 0;
   var peg$posDetailsCache = [{ line: 1, column: 1 }];
@@ -459,7 +463,8 @@ function peg$parse(input, options) {
         }
         s6 = peg$parseEOL();
         if (s6 !== peg$FAILED) {
-          s0 = s3;
+          peg$savedPos = s0;
+          s0 = peg$f2(s3);
         } else {
           peg$currPos = s0;
           s0 = peg$FAILED;
@@ -554,7 +559,7 @@ function peg$parse(input, options) {
       }
     }
     peg$savedPos = s0;
-    s1 = peg$f2(s1);
+    s1 = peg$f3(s1);
     s0 = s1;
 
     return s0;
@@ -804,7 +809,7 @@ function peg$parse(input, options) {
     }
     if (s1 !== peg$FAILED) {
       peg$savedPos = s0;
-      s1 = peg$f3();
+      s1 = peg$f4();
     }
     s0 = s1;
 
