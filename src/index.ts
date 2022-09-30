@@ -7,6 +7,8 @@ import { parseString, ParseStringResult } from './lib/ini'
 
 export { parseString }
 
+// @ts-ignore So we can set the rootDir to be 'lib', without processing
+// package.json
 import pkg from '../package.json'
 
 export interface KnownProps {

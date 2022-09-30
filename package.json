@@ -6,7 +6,7 @@
     "editorconfig",
     "core"
   ],
-  "main": "src/index.js",
+  "main": "./lib/index.js",
   "contributors": [
     "Hong Xu (topbug.net)",
     "Jed Mao (https://github.com/jedmao/)",
@@ -17,19 +17,18 @@
     "lib": "./lib"
   },
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf lib",
     "prebuild": "npm run clean",
     "build": "tsc",
-    "pretest": "npm run lint && npm run build && npm run copy && cmake .",
+    "pretest": "npm run lint && npm run build && cmake .",
     "test": "ctest .",
     "pretest:ci": "npm run pretest",
     "test:ci": "ctest -VV --output-on-failure .",
     "lint": "npm run eclint && npm run tslint",
     "eclint": "eclint check --indent_size ignore \"src/**\"",
-    "tslint": "tslint --project tsconfig.json --exclude package.json",
-    "copy": "cpy .npmignore LICENSE README.md CHANGELOG.md dist && cpy bin/* dist/bin && cpy src/lib/fnmatch*.* dist/src/lib",
-    "prepub": "npm run lint && npm run build && npm run copy",
-    "pub": "npm publish ./dist"
+    "tslint": "tslint --project tsconfig.json --exclude package.json --exclude 'lib/**/*' --exclude 'src/lib/fnmatch.js'",
+    "prepub": "npm run lint && npm run build",
+    "pub": "npm publish"
   },
   "repository": {
     "type": "git",
@@ -54,6 +53,6 @@
     "rimraf": "^2.6.3",
     "should": "^13.2.3",
     "tslint": "^5.13.1",
-    "typescript": "^3.3.3333"
+    "typescript": "^4.8.4"
   }
 }
