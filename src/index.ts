@@ -11,6 +11,8 @@ export { parseString }
 // package.json
 import pkg from '../package.json'
 
+// These are specified by the editorconfig script
+/* eslint-disable @typescript-eslint/naming-convention */
 export interface KnownProps {
   end_of_line?: 'lf' | 'crlf' | 'unset'
   indent_style?: 'tab' | 'space' | 'unset'
@@ -20,6 +22,12 @@ export interface KnownProps {
   trim_trailing_whitespace?: true | false | 'unset'
   charset?: string | 'unset'
 }
+/* eslint-enable @typescript-eslint/naming-convention */
+
+interface UnknownMap {
+  [index: string]: unknown
+}
+export type Props = KnownProps & UnknownMap
 
 export interface ECFile {
   name: string
@@ -37,6 +45,8 @@ export interface ParseOptions {
   root?: string
 }
 
+// These are specified by the editorconfig script
+/* eslint-disable @typescript-eslint/naming-convention */
 const knownProps = {
   end_of_line: true,
   indent_style: true,
@@ -45,14 +55,15 @@ const knownProps = {
   trim_trailing_whitespace: true,
   charset: true,
 }
+/* eslint-enable @typescript-eslint/naming-convention */
 
-function fnmatch(filepath: string, glob: string) {
+function fnmatch(filepath: string, glob: string): boolean {
   const matchOptions = { matchBase: true, dot: true, noext: true }
   glob = glob.replace(/\*\*/g, '{*,**/**/**}')
   return minimatch(filepath, glob, matchOptions)
 }
 
-function getConfigFileNames(filepath: string, options: ParseOptions) {
+function getConfigFileNames(filepath: string, options: ParseOptions): string[] {
   const paths = []
   do {
     filepath = path.dirname(filepath)
@@ -61,7 +72,7 @@ function getConfigFileNames(filepath: string, options: ParseOptions) {
   return paths
 }
 
-function processMatches(matches: KnownProps, version: string) {
+function processMatches(matches: Props, version: string): Props {
   // Set indent_size to 'tab' if indent_size is unspecified and
   // indent_style is set to 'tab'.
   if (
@@ -95,7 +106,10 @@ function processMatches(matches: KnownProps, version: string) {
   return matches
 }
 
-function processOptions(options: ParseOptions = {}, filepath: string) {
+function processOptions(
+  options: ParseOptions = {},
+  filepath: string
+): ParseOptions {
   return {
     config: options.config || '.editorconfig',
     version: options.version || pkg.version,
@@ -103,31 +117,31 @@ function processOptions(options: ParseOptions = {}, filepath: string) {
   }
 }
 
-function buildFullGlob(pathPrefix: string, glob: string) {
+function buildFullGlob(pathPrefix: string, glob: string): string {
   switch (glob.indexOf('/')) {
-    case -1:
-      glob = '**/' + glob
-      break
-    case 0:
-      glob = glob.substring(1)
-      break
-    default:
-      break
+  case -1:
+    glob = '**/' + glob
+    break
+  case 0:
+    glob = glob.substring(1)
+    break
+  default:
+    break
   }
   return path.join(pathPrefix, glob)
 }
 
-function extendProps(props: {} = {}, options: {} = {}) {
+function extendProps(props: Props, options: Props): Props {
   for (const key in options) {
     if (options.hasOwnProperty(key)) {
       const value = options[key]
       const key2 = key.toLowerCase()
       let value2 = value
       if (knownProps[key2]) {
-        value2 = value.toLowerCase()
+        value2 = String(value).toLowerCase()
       }
       try {
-        value2 = JSON.parse(value)
+        value2 = JSON.parse(String(value))
       } catch (e) {}
       if (typeof value === 'undefined' || value === null) {
         // null and undefined are values specific to JSON (no special meaning
@@ -143,13 +157,13 @@ function extendProps(props: {} = {}, options: {} = {}) {
 function parseFromConfigs(
   configs: FileConfig[],
   filepath: string,
-  options: ParseOptions,
-) {
+  options: ParseOptions
+): Props {
   return processMatches(
     configs
       .reverse()
       .reduce(
-        (matches: KnownProps, file) => {
+        (matches: Props, file) => {
           const pathPrefix = path.dirname(file.name)
           file.contents.forEach((section) => {
             const glob = section[0]
@@ -165,32 +179,29 @@ function parseFromConfigs(
           })
           return matches
         },
-        {},
+        {}
       ),
-    options.version as string,
+    options.version as string
   )
 }
 
-function getConfigsForFiles(files: ECFile[]) {
-  const configs = []
-  for (const i in files) {
-    if (files.hasOwnProperty(i)) {
-      const file = files[i]
-      const contents = parseString(file.contents as string)
-      configs.push({
-        name: file.name,
-        contents,
-      })
-      if ((contents[0][1].root || '').toLowerCase() === 'true') {
-        break
-      }
+function getConfigsForFiles(files: ECFile[]): FileConfig[] {
+  const configs: FileConfig[] = []
+  for (const file of files) {
+    const contents = parseString(file.contents as string)
+    configs.push({
+      name: file.name,
+      contents,
+    })
+    if ((contents[0][1].root || '').toLowerCase() === 'true') {
+      break
     }
   }
   return configs
 }
 
-async function readConfigFiles(filepaths: string[]) {
-  return Promise.all(
+async function readConfigFiles(filepaths: string[]): Promise<ECFile[]> {
+  return Promise.all<ECFile>(
     filepaths.map((name) => new Promise((resolve) => {
       fs.readFile(name, 'utf8', (err, data) => {
         resolve({
@@ -198,11 +209,11 @@ async function readConfigFiles(filepaths: string[]) {
           contents: err ? '' : data,
         })
       })
-    })),
+    }))
   )
 }
 
-function readConfigFilesSync(filepaths: string[]) {
+function readConfigFilesSync(filepaths: string[]): ECFile[] {
   const files: ECFile[] = []
   let file: string | number | Buffer
   filepaths.forEach((filepath) => {
@@ -233,31 +244,34 @@ function opts(filepath: string, options: ParseOptions = {}): [
 export async function parseFromFiles(
   filepath: string,
   files: Promise<ECFile[]>,
-  options: ParseOptions = {},
-) {
+  options: ParseOptions = {}
+): Promise<Props> {
   const [resolvedFilePath, processedOptions] = opts(filepath, options)
   return files.then(getConfigsForFiles)
     .then((configs) => parseFromConfigs(
       configs,
       resolvedFilePath,
-      processedOptions,
+      processedOptions
     ))
 }
 
 export function parseFromFilesSync(
   filepath: string,
   files: ECFile[],
-  options: ParseOptions = {},
-) {
+  options: ParseOptions = {}
+): Props {
   const [resolvedFilePath, processedOptions] = opts(filepath, options)
   return parseFromConfigs(
     getConfigsForFiles(files),
     resolvedFilePath,
-    processedOptions,
+    processedOptions
   )
 }
 
-export async function parse(_filepath: string, _options: ParseOptions = {}) {
+export async function parse(
+  _filepath: string,
+  _options: ParseOptions = {}
+): Promise<Props> {
   const [resolvedFilePath, processedOptions] = opts(_filepath, _options)
   const filepaths = getConfigFileNames(resolvedFilePath, processedOptions)
   return readConfigFiles(filepaths)
@@ -265,17 +279,20 @@ export async function parse(_filepath: string, _options: ParseOptions = {}) {
     .then((configs) => parseFromConfigs(
       configs,
       resolvedFilePath,
-      processedOptions,
+      processedOptions
     ))
 }
 
-export function parseSync(_filepath: string, _options: ParseOptions = {}) {
+export function parseSync(
+  _filepath: string,
+  _options: ParseOptions = {}
+): Props {
   const [resolvedFilePath, processedOptions] = opts(_filepath, _options)
   const filepaths = getConfigFileNames(resolvedFilePath, processedOptions)
   const files = readConfigFilesSync(filepaths)
   return parseFromConfigs(
     getConfigsForFiles(files),
     resolvedFilePath,
-    processedOptions,
+    processedOptions
   )
 }
