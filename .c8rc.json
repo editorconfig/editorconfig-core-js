@@ -1,0 +1,11 @@
+{
+  "exclude": [
+    "coverage/**",
+    "**/*.test.*",
+    ".mocharc.js"
+  ],
+  "reporter": [
+    "lcov",
+    "text"
+  ]
+}

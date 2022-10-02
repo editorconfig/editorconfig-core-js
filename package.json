@@ -10,20 +10,24 @@
   "contributors": [
     "Hong Xu (topbug.net)",
     "Jed Mao (https://github.com/jedmao/)",
-    "Trey Hunner (http://treyhunner.com)"
+    "Trey Hunner (http://treyhunner.com)",
+    "Joe Hildebrand (https://github.com/hildjj/)"
   ],
   "directories": {
     "bin": "./bin",
     "lib": "./lib"
   },
   "scripts": {
-    "clean": "rimraf lib",
+    "clean": "rimraf lib *.cmake Makefile",
     "prebuild": "npm run clean",
-    "build": "tsc",
-    "pretest": "npm run lint && npm run build && cmake .",
-    "test": "ctest .",
-    "pretest:ci": "npm run build && cmake .",
-    "test:ci": "ctest -VV --output-on-failure .",
+    "build": "cmake . && tsc",
+    "pretest": "npm run build && npm run lint",
+    "test": "npm run test:all",
+    "test:all": "mocha && ctest .",
+    "precoverage": "npm run build -- --inlineSourceMap",
+    "coverage": "c8 npm run test:all",
+    "postcoverage": "npm run build",
+    "ci": "npm run coverage -- -- -VV --output-on-failure",
     "lint": "eslint . --ext ts",
     "prepub": "npm run lint && npm run build",
     "pub": "npm publish"
@@ -47,6 +51,7 @@
     "@types/semver": "^7.3.12",
     "@typescript-eslint/eslint-plugin": "5.38.1",
     "@typescript-eslint/parser": "5.38.1",
+    "c8": "7.12.0",
     "eslint": "8.24.0",
     "eslint-plugin-jsdoc": "39.3.6",
     "mocha": "^10.0.0",
