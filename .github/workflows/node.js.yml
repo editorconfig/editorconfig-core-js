@@ -33,7 +33,19 @@ jobs:
         if: matrix.node-version == '18.x' && matrix.os == 'ubuntu-latest'
         run: npm run lint
       - name: Test
-        run: npm run test:ci
-      # - uses: codecov/codecov-action@v3
-      #   with:
-      #     files: coverage/lcov.info
+        run: npm run ci
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          flag-name: node-${{ matrix.node-version }}
+          parallel: true
+  finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true

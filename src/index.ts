@@ -4,7 +4,7 @@ import * as semver from 'semver'
 
 import minimatch from './lib/fnmatch'
 import { parseString, ParseStringResult } from './lib/ini'
-
+export type { ParseStringResult }
 export { parseString }
 
 // @ts-ignore So we can set the rootDir to be 'lib', without processing
