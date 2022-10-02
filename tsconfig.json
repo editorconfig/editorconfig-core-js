@@ -1,28 +1,24 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "module": "commonjs",
-    "outDir": "dist",
-    "declaration": true,
+    "outDir": "lib",
     "esModuleInterop": true,
-    "target": "es5",
-    "lib": ["es6"],
+    "target": "es2018",
     "sourceMap": false,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "rootDir": ".",
+    "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "skipLibCheck": true
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-  ],
   "include": [
-    "src/**/*.ts"
+    "src/"
   ]
 }

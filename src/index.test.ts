@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import * as fs from 'fs'
 import * as path from 'path'
 import 'should'
@@ -45,7 +46,7 @@ describe('parseFromFiles', () => {
 
   it('async', async () => {
     expected.should.eql(
-      await editorconfig.parseFromFiles(target, Promise.resolve(configs)),
+      await editorconfig.parseFromFiles(target, Promise.resolve(configs))
     )
   })
 

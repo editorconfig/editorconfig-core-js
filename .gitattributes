@@ -1,2 +1,16 @@
-# Auto detect text files and perform LF normalization
-* text=lf
+pnpm-lock.yaml               merge=text
+shrinkwrap.yaml              merge=binary
+npm-shrinkwrap.json          merge=binary
+yarn.lock                    merge=binary
+
+bin/* text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.peggy text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.map text eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
