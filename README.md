@@ -1,10 +1,10 @@
 # EditorConfig JavaScript Core
 
-[![Build Status](https://travis-ci.org/editorconfig/editorconfig-core-js.svg?branch=master)](https://travis-ci.org/editorconfig/editorconfig-core-js)
+[![Tests](https://github.com/editorconfig/editorconfig-core-js/actions/workflows/node.js.yml/badge.svg)](https://github.com/editorconfig/editorconfig-core-js/actions/workflows/node.js.yml)
+[![Coverage Status](https://coveralls.io/repos/github/editorconfig/editorconfig-core-js/badge.svg?branch=master)](https://coveralls.io/github/editorconfig/editorconfig-core-js?branch=master)
 
 The EditorConfig JavaScript core will provide the same functionality as the
 [EditorConfig C Core][] and [EditorConfig Python Core][].
-
 
 ## Installation
 

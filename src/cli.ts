@@ -6,7 +6,7 @@ import * as editorconfig from './'
 
 import pkg from '../package.json'
 
-export default function cli(args: string[]): void {
+export default function cli(args: string[]): Promise<editorconfig.Props[]> {
   const program = createCommand()
 
   program.version(
@@ -26,7 +26,7 @@ export default function cli(args: string[]): void {
   const files = program.args
   const opts = program.opts()
 
-  Promise.all(
+  return Promise.all(
     files.map((filePath) => editorconfig.parse(filePath, {
       config: opts.f as string,
       version: opts.b as string,
@@ -41,7 +41,6 @@ export default function cli(args: string[]): void {
         console.log(`${key}=${String(props[key])}`)
       })
     })
-  }, er => {
-    console.error(er)
+    return parsed
   })
 }

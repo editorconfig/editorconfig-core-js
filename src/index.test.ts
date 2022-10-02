@@ -21,11 +21,13 @@ describe('parse', () => {
   const target = path.join(__dirname, '/app.js')
 
   it('async', async () => {
-    expected.should.eql(await editorconfig.parse(target))
+    const cfg = await editorconfig.parse(target)
+    cfg.should.eql(expected)
   })
 
   it('sync', () => {
-    expected.should.eql(editorconfig.parseSync(target))
+    const cfg = editorconfig.parseSync(target)
+    cfg.should.eql(expected)
   })
 })
 
@@ -46,18 +48,27 @@ describe('parseFromFiles', () => {
   const configPath = path.resolve(__dirname, '../.editorconfig')
   configs.push({
     name: configPath,
-    contents: fs.readFileSync(configPath, 'utf8'),
+    contents: fs.readFileSync(configPath),
   })
   const target = path.join(__dirname, '/app.js')
 
   it('async', async () => {
-    expected.should.eql(
+    const cfg: editorconfig.Props =
       await editorconfig.parseFromFiles(target, Promise.resolve(configs))
-    )
+    cfg.should.eql(expected)
   })
 
   it('sync', () => {
-    expected.should.eql(editorconfig.parseFromFilesSync(target, configs))
+    const cfg = editorconfig.parseFromFilesSync(target, configs)
+    cfg.should.eql(expected)
+  })
+
+  it('handles null', () => {
+    const cfg = editorconfig.parseFromFilesSync(target, [{
+      name: configPath,
+      contents: Buffer.from('[*]\nfoo = null\n'),
+    }])
+    cfg.should.eql({ foo: 'null' })
   })
 })
 
@@ -84,5 +95,10 @@ describe('parseString', () => {
   it('sync', () => {
     const cfg = editorconfig.parseString(contents)
     cfg.should.eql(expected)
+  })
+
+  it('handles errors', () => {
+    const cfg = editorconfig.parseString('root: ')
+    cfg.should.eql([[null, {}]])
   })
 })
