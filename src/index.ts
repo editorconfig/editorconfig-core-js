@@ -9,6 +9,8 @@ import { parse_to_uint32array, TokenTypes } from '@one-ini/wasm'
 // package.json
 import pkg from '../package.json'
 
+const escapedSep = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g')
+
 // These are specified by the editorconfig script
 /* eslint-disable @typescript-eslint/naming-convention */
 export interface KnownProps {
@@ -166,7 +168,8 @@ function buildFullGlob(pathPrefix: string, glob: string): string {
   default:
     break
   }
-  return path.join(pathPrefix, glob)
+  // NOT path.join.  Must stay in forward slashes.
+  return `${pathPrefix}/${glob}`
 }
 
 function extendProps(props: Props, options: Props): Props {
@@ -203,10 +206,11 @@ function parseFromConfigs(
       .reverse()
       .reduce(
         (matches: Props, file) => {
-          const pathPrefix = path.dirname(file.name)
-          file.contents.forEach((section) => {
-            const glob = section[0]
-            const options2 = section[1]
+          let pathPrefix = path.dirname(file.name)
+          if (path.sep !== '/') {
+            pathPrefix = pathPrefix.replace(escapedSep, '/')
+          }
+          file.contents.forEach(([glob, options2]) => {
             if (!glob) {
               return
             }
