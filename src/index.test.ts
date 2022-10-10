@@ -70,6 +70,19 @@ describe('parseFromFiles', () => {
     }])
     cfg.should.eql({ foo: 'null' })
   })
+
+  it('handles minimatch escapables', () => {
+    const bogusPath = '/#?![C] f+ * {foo} (bar|baz)'
+    const escConfigs: editorconfig.ECFile[] = [
+      {
+        name: `${bogusPath}/.editorconfig`,
+        contents: configs[0].contents,
+      },
+    ]
+    const escTarget = `${bogusPath}/app.js`
+    const cfg = editorconfig.parseFromFilesSync(escTarget, escConfigs)
+    cfg.should.eql(expected)
+  })
 })
 
 describe('parseString', () => {

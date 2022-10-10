@@ -207,6 +207,7 @@ function parseFromConfigs(
       .reduce(
         (matches: Props, file) => {
           let pathPrefix = path.dirname(file.name)
+          pathPrefix = pathPrefix.replace(/([|*!+#?{}()[\]])/g, '\\$1')
           if (path.sep !== '/') {
             pathPrefix = pathPrefix.replace(escapedSep, '/')
           }
