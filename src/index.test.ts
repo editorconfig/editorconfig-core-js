@@ -17,6 +17,7 @@ describe('parse', () => {
     block_comment: '*',
     block_comment_end: '*/',
     block_comment_start: '/**',
+    [editorconfig.FILES]: [],
   }
   const target = path.join(__dirname, '/app.js')
 
@@ -28,6 +29,8 @@ describe('parse', () => {
   it('sync', () => {
     const cfg = editorconfig.parseSync(target)
     cfg.should.eql(expected)
+    cfg[editorconfig.FILES].should.be.instanceof(Array).and.have.lengthOf(1)
+    cfg[editorconfig.FILES][0].should.endWith('.editorconfig')
   })
 })
 
@@ -43,6 +46,7 @@ describe('parseFromFiles', () => {
     insert_final_newline: true,
     tab_width: 2,
     trim_trailing_whitespace: true,
+    [editorconfig.FILES]: [],
   }
   const configs: editorconfig.ECFile[] = []
   const configPath = path.resolve(__dirname, '../.editorconfig')
