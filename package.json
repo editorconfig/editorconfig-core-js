@@ -23,7 +23,7 @@
     "build": "cmake . && tsc",
     "pretest": "npm run build && npm run lint",
     "test": "npm run test:all",
-    "test:all": "mocha && ctest .",
+    "test:all": "mocha && ctest . --preset Test",
     "precoverage": "npm run build -- --inlineSourceMap",
     "coverage": "c8 npm run test:all",
     "postcoverage": "npm run build",
@@ -40,12 +40,13 @@
   "author": "EditorConfig Team",
   "license": "MIT",
   "dependencies": {
+    "@one-ini/wasm": "0.1.0",
     "commander": "^9.4.1",
-    "lru-cache": "^7.14.0",
-    "semver": "^7.3.7",
-    "sigmund": "^1.0.1"
+    "minimatch": "5.1.0",
+    "semver": "^7.3.7"
   },
   "devDependencies": {
+    "@types/minimatch": "5.1.2",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.7.23",
     "@types/semver": "^7.3.12",

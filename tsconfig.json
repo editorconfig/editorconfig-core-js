@@ -3,6 +3,7 @@
     "allowJs": true,
     "module": "commonjs",
     "outDir": "lib",
+    "declaration": true,
     "esModuleInterop": true,
     "target": "es2018",
     "sourceMap": false,

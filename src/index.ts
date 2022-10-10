@@ -2,14 +2,14 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as semver from 'semver'
 
-import minimatch from './lib/fnmatch'
-import { parseString, ParseStringResult } from './lib/ini'
-export type { ParseStringResult }
-export { parseString }
+import minimatch from 'minimatch'
+import { parse_to_uint32array, TokenTypes } from '@one-ini/wasm'
 
 // @ts-ignore So we can set the rootDir to be 'lib', without processing
 // package.json
 import pkg from '../package.json'
+
+const escapedSep = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g')
 
 // These are specified by the editorconfig script
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -31,7 +31,7 @@ export type Props = KnownProps & UnknownMap
 
 export interface ECFile {
   name: string
-  contents: string | Buffer
+  contents?: Buffer
 }
 
 export interface FileConfig {
@@ -56,6 +56,46 @@ const knownProps = {
   charset: true,
 }
 /* eslint-enable @typescript-eslint/naming-convention */
+
+export type SectionName = string | null
+export interface SectionBody { [key: string]: string }
+export type ParseStringResult = [SectionName, SectionBody][]
+
+export function parseBuffer(data: Buffer): ParseStringResult {
+  const parsed = parse_to_uint32array(data)
+  let cur: SectionBody = {}
+  const res: ParseStringResult = [[null, cur]]
+  let key: string | null = null
+
+  for (let i = 0; i < parsed.length; i += 3) {
+    switch (parsed[i]) {
+    case TokenTypes.Section: {
+      cur = {}
+      res.push([
+        data
+          .toString('utf8', parsed[i+1], parsed[i+2])
+          .replace(/\\\\/g, '\\\\\\\\'),
+        cur,
+      ])
+      break
+    }
+    case TokenTypes.Key:
+      key = data.toString('utf8', parsed[i+1], parsed[i+2])
+      break
+    case TokenTypes.Value: {
+      cur[key as string] = data.toString('utf8', parsed[i+1], parsed[i+2])
+      break
+    }
+    default:
+      break
+    }
+  }
+  return res
+}
+
+export function parseString(data: string): ParseStringResult {
+  return parseBuffer(Buffer.from(data))
+}
 
 function fnmatch(filepath: string, glob: string): boolean {
   const matchOptions = { matchBase: true, dot: true, noext: true }
@@ -128,7 +168,8 @@ function buildFullGlob(pathPrefix: string, glob: string): string {
   default:
     break
   }
-  return path.join(pathPrefix, glob)
+  // NOT path.join.  Must stay in forward slashes.
+  return `${pathPrefix}/${glob}`
 }
 
 function extendProps(props: Props, options: Props): Props {
@@ -138,12 +179,13 @@ function extendProps(props: Props, options: Props): Props {
       const key2 = key.toLowerCase()
       let value2 = value
       if (knownProps[key2]) {
+        // All of the values for the known props are lowercase.
         value2 = String(value).toLowerCase()
       }
       try {
         value2 = JSON.parse(String(value))
       } catch (e) {}
-      if (typeof value === 'undefined' || value === null) {
+      if (typeof value2 === 'undefined' || value2 === null) {
         // null and undefined are values specific to JSON (no special meaning
         // in editorconfig) & should just be returned as regular strings.
         value2 = String(value)
@@ -164,10 +206,11 @@ function parseFromConfigs(
       .reverse()
       .reduce(
         (matches: Props, file) => {
-          const pathPrefix = path.dirname(file.name)
-          file.contents.forEach((section) => {
-            const glob = section[0]
-            const options2 = section[1]
+          let pathPrefix = path.dirname(file.name)
+          if (path.sep !== '/') {
+            pathPrefix = pathPrefix.replace(escapedSep, '/')
+          }
+          file.contents.forEach(([glob, options2]) => {
             if (!glob) {
               return
             }
@@ -188,13 +231,15 @@ function parseFromConfigs(
 function getConfigsForFiles(files: ECFile[]): FileConfig[] {
   const configs: FileConfig[] = []
   for (const file of files) {
-    const contents = parseString(file.contents as string)
-    configs.push({
-      name: file.name,
-      contents,
-    })
-    if ((contents[0][1].root || '').toLowerCase() === 'true') {
-      break
+    if (file.contents) {
+      const contents = parseBuffer(file.contents)
+      configs.push({
+        name: file.name,
+        contents,
+      })
+      if ((contents[0][1].root || '').toLowerCase() === 'true') {
+        break
+      }
     }
   }
   return configs
@@ -203,11 +248,9 @@ function getConfigsForFiles(files: ECFile[]): FileConfig[] {
 async function readConfigFiles(filepaths: string[]): Promise<ECFile[]> {
   return Promise.all<ECFile>(
     filepaths.map((name) => new Promise((resolve) => {
-      fs.readFile(name, 'utf8', (err, data) => {
-        resolve({
-          name,
-          contents: err ? '' : data,
-        })
+      fs.readFile(name, (_, contents) => {
+        // Ignore errors.  contents will be undefined
+        resolve({ name, contents })
       })
     }))
   )
@@ -215,17 +258,13 @@ async function readConfigFiles(filepaths: string[]): Promise<ECFile[]> {
 
 function readConfigFilesSync(filepaths: string[]): ECFile[] {
   const files: ECFile[] = []
-  let file: string | number | Buffer
-  filepaths.forEach((filepath) => {
+  filepaths.forEach((name) => {
     try {
-      file = fs.readFileSync(filepath, 'utf8')
-    } catch (e) {
-      file = ''
+      const contents = fs.readFileSync(name)
+      files.push({ name, contents })
+    } catch (_) {
+      // Ignored
     }
-    files.push({
-      name: filepath,
-      contents: file,
-    })
   })
   return files
 }
