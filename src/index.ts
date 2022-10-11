@@ -207,7 +207,14 @@ function parseFromConfigs(
       .reduce(
         (matches: Props, file) => {
           let pathPrefix = path.dirname(file.name)
-          pathPrefix = pathPrefix.replace(/([|*!+#?{}()[\]])/g, '\\$1')
+
+          // All of these characters are special to minimatch, but can be
+          // forced into path names on many file systems.  Escape them. Note
+          // that these are in the order of the case statement in minimatch.
+          pathPrefix = pathPrefix.replace(/[?*+@!()|[\]{}]/g, '\\$&')
+          // I can't think of a way for this to happen in the filesystems I've
+          // seen (because of the path.dirname above), but let's be thorough.
+          pathPrefix = pathPrefix.replace(/^#/, '\\#')
           if (path.sep !== '/') {
             pathPrefix = pathPrefix.replace(escapedSep, '/')
           }

@@ -72,7 +72,11 @@ describe('parseFromFiles', () => {
   })
 
   it('handles minimatch escapables', () => {
-    const bogusPath = '/#?![C] f+ * {foo} (bar|baz)'
+    // Note that this `#` does not actually test the /^#/ escaping logic,
+    // because this path will go through a `path.dirname` before that happens.
+    // It's here to catch what would happen if minimatch started to treat #
+    // differently inside a pattern.
+    const bogusPath = path.resolve(__dirname, '#?*+@!()|[]{}')
     const escConfigs: editorconfig.ECFile[] = [
       {
         name: `${bogusPath}/.editorconfig`,
