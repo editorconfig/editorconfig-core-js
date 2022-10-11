@@ -144,6 +144,8 @@ Options:
   -v, --version  Display version information
   -f <path>      Specify conf filename other than '.editorconfig'
   -b <version>   Specify version (used by devs to test compatibility)
+  --files        Output file names that contributed to the configuration,
+                 rather than the configuation itself
   -h, --help     display help for command
 ```
 
@@ -156,6 +158,12 @@ insert_final_newline=true
 end_of_line=lf
 tab_width=8
 trim_trailing_whitespace=sometimes
+```
+
+```bash
+$ ./bin/editorconfig --files /home/zoidberg/humans/anatomy.md
+/home/zoidberg/.editorconfig
+/home/zoidberg/humans/.editorconfig
 ```
 
 ## Development
