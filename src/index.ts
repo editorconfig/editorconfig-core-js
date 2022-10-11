@@ -207,9 +207,22 @@ function parseFromConfigs(
       .reduce(
         (matches: Props, file) => {
           let pathPrefix = path.dirname(file.name)
+
           if (path.sep !== '/') {
             pathPrefix = pathPrefix.replace(escapedSep, '/')
           }
+
+          // After Windows path backslash's are turned into slashes, so that
+          // the backslashes we add here aren't turned into forward slashes:
+
+          // All of these characters are special to minimatch, but can be
+          // forced into path names on many file systems.  Escape them. Note
+          // that these are in the order of the case statement in minimatch.
+          pathPrefix = pathPrefix.replace(/[?*+@!()|[\]{}]/g, '\\$&')
+          // I can't think of a way for this to happen in the filesystems I've
+          // seen (because of the path.dirname above), but let's be thorough.
+          pathPrefix = pathPrefix.replace(/^#/, '\\#')
+
           file.contents.forEach(([glob, options2]) => {
             if (!glob) {
               return
