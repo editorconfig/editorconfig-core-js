@@ -48,6 +48,6 @@ describe('Command line interface', () => {
 
   it('Lists files', async() => {
     const res = await exec('foo.md', '--files')
-    res.stdout.trim().should.endWith('.editorconfig')
+    res.stdout.trim().should.endWith('.editorconfig [*.md]')
   })
 })

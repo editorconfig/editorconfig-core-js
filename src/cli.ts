@@ -47,20 +47,14 @@ export default function cli(
     files.map((filePath) => editorconfig.parse(filePath, {
       config: opts.f as string,
       version: opts.b as string,
+      files: opts.files as boolean,
     }))
   ).then((parsed) => {
     const header = parsed.length > 1
-    const seen = new Set()
     parsed.forEach((props, i) => {
-      if (opts.files) {
-        for (const name of props[editorconfig.FILES]) {
-          // Seeing duplicate file names for each section that matches isn't
-          // interesting.
-          if (!seen.has(name)) {
-            writeOut(name)
-            writeOut('\n')
-            seen.add(name)
-          }
+      if (props[editorconfig.FILES]) {
+        for (const [name, glob] of props[editorconfig.FILES]) {
+          writeOut(`${name} [${glob}]\n`)
         }
       } else {
         if (header) {

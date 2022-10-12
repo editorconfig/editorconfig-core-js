@@ -34,7 +34,8 @@ options is an object with the following defaults:
 {
   config: '.editorconfig',
   version: pkg.version,
-  root: '/'
+  root: '/',
+  files: false
 };
 ```
 
@@ -49,7 +50,7 @@ const path = require('path');
 const filePath = path.join(__dirname, 'sample.js');
 
 (async () => {
-  console.log(await editorconfig.parse(filePath));
+  console.log(await editorconfig.parse(filePath, {files: true}));
 })();
 /*
   {
@@ -60,13 +61,17 @@ const filePath = path.join(__dirname, 'sample.js');
     trim_trailing_whitespace: true,
     insert_final_newline: true,
     tab_width: 2,
-    [Symbol(FILES)]: ['[DIRECTORY]/.editorconfig']
+    [Symbol(FILES)]: [
+      ['[DIRECTORY]/.editorconfig', '*']
+      ['[DIRECTORY]/.editorconfig', '*.js']
+    ]
   };
 */
 ```
 
-The Symbol `editorconfig.FILES` accesses an array of strings that specify
-which .editorconfig files contributed to the returned configuration.
+When the `files` option is true, the Symbol `editorconfig.FILES` accesses an
+array of string pairs that specify which .editorconfig files and section names
+contributed to the returned configuration.
 
 #### parseSync(filePath[, options])
 
@@ -85,7 +90,8 @@ options is an object with the following defaults:
 {
   config: '.editorconfig',
   version: pkg.version,
-  root: '/'
+  root: '/',
+  files: false
 };
 ```
 
@@ -141,7 +147,7 @@ Arguments:
                  want path(s) to be read from stdin.
 
 Options:
-  -v, --version  Display version information
+  -v, --version  Display version information from the package
   -f <path>      Specify conf filename other than '.editorconfig'
   -b <version>   Specify version (used by devs to test compatibility)
   --files        Output file names that contributed to the configuration,

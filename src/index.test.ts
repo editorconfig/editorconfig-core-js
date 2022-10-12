@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as fs from 'fs'
 import * as path from 'path'
-import 'should'
+import should from 'should'
 
 import * as editorconfig from './'
 
@@ -17,7 +17,6 @@ describe('parse', () => {
     block_comment: '*',
     block_comment_end: '*/',
     block_comment_start: '/**',
-    [editorconfig.FILES]: [],
   }
   const target = path.join(__dirname, '/app.js')
 
@@ -27,10 +26,13 @@ describe('parse', () => {
   })
 
   it('sync', () => {
-    const cfg = editorconfig.parseSync(target)
+    const cfg = editorconfig.parseSync(target, {files: true})
     cfg.should.eql(expected)
-    cfg[editorconfig.FILES].should.be.instanceof(Array).and.have.lengthOf(1)
-    cfg[editorconfig.FILES][0].should.endWith('.editorconfig')
+    should.exist(cfg[editorconfig.FILES])
+    if (cfg[editorconfig.FILES]) {
+      cfg[editorconfig.FILES].should.be.instanceof(Array).and.have.lengthOf(1)
+      cfg[editorconfig.FILES][0][0].should.endWith('.editorconfig')
+    }
   })
 })
 

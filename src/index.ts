@@ -22,7 +22,7 @@ export interface KnownProps {
   tab_width?: number | 'unset'
   trim_trailing_whitespace?: true | false | 'unset'
   charset?: string | 'unset'
-  [FILES]: string[]
+  [FILES]?: [string, string][]
 }
 /* eslint-enable @typescript-eslint/naming-convention */
 
@@ -45,6 +45,7 @@ export interface ParseOptions {
   config?: string
   version?: string
   root?: string
+  files?: boolean
 }
 
 // These are specified by the editorconfig script
@@ -156,6 +157,7 @@ function processOptions(
     config: options.config || '.editorconfig',
     version: options.version || pkg.version,
     root: path.resolve(options.root || path.parse(filepath).root),
+    files: !!options.files,
   }
 }
 
@@ -211,6 +213,7 @@ function parseFromConfigs(
           let pathPrefix = path.dirname(file.name)
 
           if (path.sep !== '/') {
+            // Windows-only
             pathPrefix = pathPrefix.replace(escapedSep, '/')
           }
 
@@ -233,12 +236,14 @@ function parseFromConfigs(
             if (!fnmatch(filepath, fullGlob)) {
               return
             }
-            matches[FILES].push(file.name)
+            if (matches[FILES]) {
+              matches[FILES].push([file.name, glob])
+            }
             matches = extendProps(matches, options2)
           })
           return matches
         },
-        { [FILES]: [] }
+        options.files ? { [FILES]: [] } : {}
       ),
     options.version as string
   )
