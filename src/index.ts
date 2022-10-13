@@ -10,6 +10,7 @@ import { parse_to_uint32array, TokenTypes } from '@one-ini/wasm'
 import pkg from '../package.json'
 
 const escapedSep = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g')
+const matchOptions = { matchBase: true, dot: true, noext: true }
 
 // These are specified by the editorconfig script
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -78,9 +79,7 @@ export function parseBuffer(data: Buffer): ParseStringResult {
     case TokenTypes.Section: {
       cur = {}
       res.push([
-        data
-          .toString('utf8', parsed[i+1], parsed[i+2])
-          .replace(/\\\\/g, '\\\\\\\\'),
+        data.toString('utf8', parsed[i+1], parsed[i+2]),
         cur,
       ])
       break
@@ -101,12 +100,6 @@ export function parseBuffer(data: Buffer): ParseStringResult {
 
 export function parseString(data: string): ParseStringResult {
   return parseBuffer(Buffer.from(data))
-}
-
-function fnmatch(filepath: string, glob: string): boolean {
-  const matchOptions = { matchBase: true, dot: true, noext: true }
-  glob = glob.replace(/\*\*/g, '{*,**/**/**}')
-  return minimatch(filepath, glob, matchOptions)
 }
 
 function getConfigFileNames(filepath: string, options: ParseOptions): string[] {
@@ -175,6 +168,9 @@ function buildFullGlob(pathPrefix: string, glob: string): string {
   default:
     break
   }
+  glob = glob.replace(/\\\\/g, '\\\\\\\\')
+  glob = glob.replace(/\*\*/g, '{*,**/**/**}')
+
   // NOT path.join.  Must stay in forward slashes.
   return `${pathPrefix}/${glob}`
 }
@@ -236,7 +232,7 @@ function parseFromConfigs(
               return
             }
             const fullGlob = buildFullGlob(pathPrefix, glob)
-            if (!fnmatch(filepath, fullGlob)) {
+            if (!minimatch(filepath, fullGlob, matchOptions)) {
               return
             }
             if (options.files) {

@@ -122,4 +122,9 @@ describe('parseString', () => {
     const cfg = editorconfig.parseString('root: ')
     cfg.should.eql([[null, {}]])
   })
+
+  it('handles backslashes in glob', () => {
+    const cfg = editorconfig.parseString('[a\\\\b]')
+    cfg.should.eql([[null, {}], ['a\\\\b', {}]])
+  })
 })
