@@ -35,7 +35,7 @@ options is an object with the following defaults:
   config: '.editorconfig',
   version: pkg.version,
   root: '/',
-  files: false
+  files: undefined
 };
 ```
 
@@ -50,7 +50,7 @@ const path = require('path');
 const filePath = path.join(__dirname, 'sample.js');
 
 (async () => {
-  console.log(await editorconfig.parse(filePath, {files: true}));
+  console.log(await editorconfig.parse(filePath, {files: []}));
 })();
 /*
   {
@@ -60,18 +60,18 @@ const filePath = path.join(__dirname, 'sample.js');
     charset: 'utf-8',
     trim_trailing_whitespace: true,
     insert_final_newline: true,
-    tab_width: 2,
-    [Symbol(FILES)]: [
-      ['[DIRECTORY]/.editorconfig', '*']
-      ['[DIRECTORY]/.editorconfig', '*.js']
-    ]
+    tab_width: 2
   };
+  assert.deepEqual(files, [
+    { fileName: '[DIRECTORY]/.editorconfig', glob: '*' },
+    { fileName: '[DIRECTORY]/.editorconfig', glob: '*.js' }
+  ])
 */
 ```
 
-When the `files` option is true, the Symbol `editorconfig.FILES` accesses an
-array of string pairs that specify which .editorconfig files and section names
-contributed to the returned configuration.
+When the `files` option is an array, it will be filled with objects that
+describe which .editorcofig files and glob section names contributed to the
+returned configuration.
 
 #### parseSync(filePath[, options])
 
@@ -91,7 +91,7 @@ options is an object with the following defaults:
   config: '.editorconfig',
   version: pkg.version,
   root: '/',
-  files: false
+  files: undefined
 };
 ```
 
@@ -125,8 +125,7 @@ const filePath = path.join(__dirname, '/sample.js');
     charset: 'utf-8',
     trim_trailing_whitespace: true,
     insert_final_newline: true,
-    tab_width: 2,
-    [Symbol(FILES)]: ['[DIRECTORY]/.editorconfig']
+    tab_width: 2
   };
 */
 ```
@@ -168,8 +167,9 @@ trim_trailing_whitespace=sometimes
 
 ```bash
 $ ./bin/editorconfig --files /home/zoidberg/humans/anatomy.md
-/home/zoidberg/.editorconfig
-/home/zoidberg/humans/.editorconfig
+/home/zoidberg/.editorconfig [*]
+/home/zoidberg/.editorconfig [*.md]
+/home/zoidberg/humans/.editorconfig [*]
 ```
 
 ## Development

@@ -42,27 +42,30 @@ export default function cli(
 
   const files = program.args
   const opts = program.opts()
+  const visited = opts.files ?
+    files.map<editorconfig.Visited[]>(() => []) :
+    undefined
 
   return Promise.all(
-    files.map((filePath) => editorconfig.parse(filePath, {
+    files.map((filePath, i) => editorconfig.parse(filePath, {
       config: opts.f as string,
       version: opts.b as string,
-      files: opts.files as boolean,
+      files: visited ? visited[i] : undefined,
     }))
   ).then((parsed) => {
     const header = parsed.length > 1
     parsed.forEach((props, i) => {
-      if (props[editorconfig.FILES]) {
-        for (const [name, glob] of props[editorconfig.FILES]) {
-          writeOut(`${name} [${glob}]\n`)
+      if (header) {
+        writeOut(`[${files[i]}]\n`)
+      }
+      if (visited) {
+        for (const v of visited[i]) {
+          writeOut(`${v.fileName} [${v.glob}]\n`)
         }
       } else {
-        if (header) {
-          writeOut(`[${files[i]}]\n`)
+        for (const [key, value] of Object.entries(props)) {
+          writeOut(`${key}=${String(value)}\n`)
         }
-        Object.keys(props).forEach((key) => {
-          writeOut(`${key}=${String(props[key])}\n`)
-        })
       }
     })
     return parsed

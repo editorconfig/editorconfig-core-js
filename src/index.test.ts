@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as fs from 'fs'
 import * as path from 'path'
-import should from 'should'
+import 'should'
 
 import * as editorconfig from './'
 
@@ -26,13 +26,12 @@ describe('parse', () => {
   })
 
   it('sync', () => {
-    const cfg = editorconfig.parseSync(target, {files: true})
+    const visited: editorconfig.Visited[] = []
+    const cfg = editorconfig.parseSync(target, {files: visited})
     cfg.should.eql(expected)
-    should.exist(cfg[editorconfig.FILES])
-    if (cfg[editorconfig.FILES]) {
-      cfg[editorconfig.FILES].should.be.instanceof(Array).and.have.lengthOf(1)
-      cfg[editorconfig.FILES][0][0].should.endWith('.editorconfig')
-    }
+    visited.should.have.lengthOf(1)
+    visited[0].glob.should.eql('*')
+    visited[0].fileName.should.endWith('.editorconfig')
   })
 })
 
@@ -48,7 +47,6 @@ describe('parseFromFiles', () => {
     insert_final_newline: true,
     tab_width: 2,
     trim_trailing_whitespace: true,
-    [editorconfig.FILES]: [],
   }
   const configs: editorconfig.ECFile[] = []
   const configPath = path.resolve(__dirname, '../.editorconfig')

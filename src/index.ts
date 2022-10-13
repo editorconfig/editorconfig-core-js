@@ -10,7 +10,6 @@ import { parse_to_uint32array, TokenTypes } from '@one-ini/wasm'
 import pkg from '../package.json'
 
 const escapedSep = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g')
-export const FILES = Symbol('FILES')
 
 // These are specified by the editorconfig script
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -22,7 +21,6 @@ export interface KnownProps {
   tab_width?: number | 'unset'
   trim_trailing_whitespace?: true | false | 'unset'
   charset?: string | 'unset'
-  [FILES]?: [string, string][]
 }
 /* eslint-enable @typescript-eslint/naming-convention */
 
@@ -41,11 +39,16 @@ export interface FileConfig {
   contents: ParseStringResult
 }
 
+export interface Visited {
+  fileName: string
+  glob: string
+}
+
 export interface ParseOptions {
   config?: string
   version?: string
   root?: string
-  files?: boolean
+  files?: Visited[]
 }
 
 // These are specified by the editorconfig script
@@ -157,7 +160,7 @@ function processOptions(
     config: options.config || '.editorconfig',
     version: options.version || pkg.version,
     root: path.resolve(options.root || path.parse(filepath).root),
-    files: !!options.files,
+    files: options.files,
   }
 }
 
@@ -236,14 +239,14 @@ function parseFromConfigs(
             if (!fnmatch(filepath, fullGlob)) {
               return
             }
-            if (matches[FILES]) {
-              matches[FILES].push([file.name, glob])
+            if (options.files) {
+              options.files.push({fileName: file.name, glob})
             }
             matches = extendProps(matches, options2)
           })
           return matches
         },
-        options.files ? { [FILES]: [] } : {}
+        {}
       ),
     options.version as string
   )

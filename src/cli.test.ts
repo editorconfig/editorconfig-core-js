@@ -50,4 +50,10 @@ describe('Command line interface', () => {
     const res = await exec('foo.md', '--files')
     res.stdout.trim().should.endWith('.editorconfig [*.md]')
   })
+
+  it('Lists multiple files', async() => {
+    const res = await exec('foo.md', 'bar.js', '--files')
+    res.stdout.should.startWith('[foo.md]')
+    res.stdout.trim().should.endWith('.editorconfig [*]')
+  })
 })
