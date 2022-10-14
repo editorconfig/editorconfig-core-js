@@ -4,11 +4,27 @@ import * as editorconfig from './'
 
 import pkg from '../package.json'
 
+/**
+ * Default output routine, goes to stdout.
+ *
+ * @param s String to output
+ */
 function writeStdOut(s: string): void {
   process.stdout.write(s)
 }
 
-export default function cli(
+/**
+ * Command line interface for editorconfig.  Pulled out into a separate module
+ * to make it easier to test.
+ *
+ * @param args Usually process.argv.  Note that the first two parameters are
+ * usually 'node' and 'editorconfig'
+ * @param testing If testing, you may pass in a Commander OutputConfiguration
+ * so that you can capture stdout and stderror.  If `testing` is provided,
+ * this routine will throw an error instead of calling `process.exit`.
+ * @returns An array of combined properties, one for each file argument.
+ */
+export default async function cli(
   args: string[],
   testing?: OutputConfiguration
 ): Promise<editorconfig.Props[]> {
@@ -42,17 +58,27 @@ export default function cli(
 
   const files = program.args
   const opts = program.opts()
+  const cache = new Map<string, editorconfig.ProcessedFileConfig>()
   const visited = opts.files ?
     files.map<editorconfig.Visited[]>(() => []) :
     undefined
 
-  return Promise.all(
-    files.map((filePath, i) => editorconfig.parse(filePath, {
-      config: opts.f as string,
-      version: opts.b as string,
-      files: visited ? visited[i] : undefined,
-    }))
-  ).then((parsed) => {
+  // Process sequentially so caching works
+  async function processAll(): Promise<editorconfig.Props[]> {
+    const p = []
+    let i = 0
+    for (const filePath of files) {
+      p.push(await editorconfig.parse(filePath, {
+        config: opts.f as string,
+        version: opts.b as string,
+        files: visited ? visited[i++] : undefined,
+        cache,
+      }))
+    }
+    return p
+  }
+
+  return await processAll().then((parsed) => {
     const header = parsed.length > 1
     parsed.forEach((props, i) => {
       if (header) {
