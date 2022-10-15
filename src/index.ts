@@ -42,6 +42,7 @@ export interface ProcessedFileConfig {
   root: boolean
   name: string
   config: GlobbedProps
+  notfound?: true
 }
 
 export interface Visited {
@@ -252,37 +253,48 @@ function normalizeProps(options: SectionBody): Props {
  */
 function processFileContents(
   filepath: string,
-  contents: Buffer,
+  contents: Buffer|undefined,
   options: ParseOptions
 ): ProcessedFileConfig {
-  let pathPrefix = path.dirname(filepath)
+  let res: ProcessedFileConfig
+  if (!contents) {
+    // Negative cache
+    res = {
+      root: false,
+      notfound: true,
+      name: filepath,
+      config: [[ null, {}, null ]],
+    }
+  } else {
+    let pathPrefix = path.dirname(filepath)
 
-  if (path.sep !== '/') {
-    // Windows-only
-    pathPrefix = pathPrefix.replace(escapedSep, '/')
-  }
+    if (path.sep !== '/') {
+      // Windows-only
+      pathPrefix = pathPrefix.replace(escapedSep, '/')
+    }
 
-  // After Windows path backslash's are turned into slashes, so that
-  // the backslashes we add here aren't turned into forward slashes:
+    // After Windows path backslash's are turned into slashes, so that
+    // the backslashes we add here aren't turned into forward slashes:
 
-  // All of these characters are special to minimatch, but can be
-  // forced into path names on many file systems.  Escape them. Note
-  // that these are in the order of the case statement in minimatch.
-  pathPrefix = pathPrefix.replace(/[?*+@!()|[\]{}]/g, '\\$&')
-  // I can't think of a way for this to happen in the filesystems I've
-  // seen (because of the path.dirname above), but let's be thorough.
-  pathPrefix = pathPrefix.replace(/^#/, '\\#')
+    // All of these characters are special to minimatch, but can be
+    // forced into path names on many file systems.  Escape them. Note
+    // that these are in the order of the case statement in minimatch.
+    pathPrefix = pathPrefix.replace(/[?*+@!()|[\]{}]/g, '\\$&')
+    // I can't think of a way for this to happen in the filesystems I've
+    // seen (because of the path.dirname above), but let's be thorough.
+    pathPrefix = pathPrefix.replace(/^#/, '\\#')
 
-  const globbed: GlobbedProps = parseBuffer(contents).map(([name, body]) => [
-    name,
-    normalizeProps(body),
-    name ? buildFullGlob(pathPrefix, name) : null,
-  ])
+    const globbed: GlobbedProps = parseBuffer(contents).map(([name, body]) => [
+      name,
+      normalizeProps(body),
+      name ? buildFullGlob(pathPrefix, name) : null,
+    ])
 
-  const res: ProcessedFileConfig = {
-    root: !!globbed[0][1].root, // globbed[0] is the global section
-    name: filepath,
-    config: globbed,
+    res = {
+      root: !!globbed[0][1].root, // globbed[0] is the global section
+      name: filepath,
+      config: globbed,
+    }
   }
   if (options.cache) {
     options.cache.set(filepath, res)
@@ -301,7 +313,7 @@ function processFileContents(
 async function getConfig(
   filepath: string,
   options: ParseOptions
-): Promise<ProcessedFileConfig|undefined> {
+): Promise<ProcessedFileConfig> {
   if (options.cache) {
     const cached = options.cache.get(filepath)
     if (cached) {
@@ -315,9 +327,6 @@ async function getConfig(
       resolve(buf)
     })
   })
-  if (!contents) {
-    return undefined
-  }
   return processFileContents(filepath, contents, options)
 }
 
@@ -332,20 +341,21 @@ async function getConfig(
 function getConfigSync(
   filepath: string,
   options: ParseOptions
-): ProcessedFileConfig|undefined {
+): ProcessedFileConfig {
   if (options.cache) {
     const cached = options.cache.get(filepath)
     if (cached) {
       return cached
     }
   }
+  let contents: Buffer | undefined
   try {
-    const contents = fs.readFileSync(filepath)
-    return processFileContents(filepath, contents, options)
+    contents = fs.readFileSync(filepath)
   } catch (_) {
     // Ignore errors
-    return undefined
+    // Perhaps only file-not-found should be ignored
   }
+  return processFileContents(filepath, contents, options)
 }
 
 /**
@@ -363,7 +373,7 @@ async function getAllConfigs(
   const configs: ProcessedFileConfig[] = []
   for (const file of files) {
     const config = await getConfig(file, options)
-    if (config) {
+    if (!config.notfound) {
       configs.push(config)
       if (config.root) {
         break
@@ -388,7 +398,7 @@ function getAllConfigsSync(
   const configs: ProcessedFileConfig[] = []
   for (const file of files) {
     const config = getConfigSync(file, options)
-    if (config) {
+    if (!config.notfound) {
       configs.push(config)
       if (config.root) {
         break
@@ -458,24 +468,18 @@ export function parseFromFilesSync(
   const [resolvedFilePath, processedOptions] = opts(filepath, options)
   const configs = []
   for (const ecf of files) {
-    if (ecf.contents) {
-      if (options.cache) {
-        const cfg = options.cache.get(ecf.name)
-        if (cfg) {
-          configs.push(cfg)
-          if (cfg.root) {
-            break
-          }
-          continue
-        }
-      }
-      const cfg2 = processFileContents(ecf.name, ecf.contents, processedOptions)
-      configs.push(cfg2)
-      if (cfg2.root) {
-        break
-      }
+    let cfg: ProcessedFileConfig | undefined
+    if (!options.cache || !(cfg = options.cache.get(ecf.name))) { // Single "="!
+      cfg = processFileContents(ecf.name, ecf.contents, processedOptions)
+    }
+    if (!cfg.notfound) {
+      configs.push(cfg)
+    }
+    if (cfg.root) {
+      break
     }
   }
+
   return combine(resolvedFilePath, configs, processedOptions)
 }
 

@@ -38,18 +38,18 @@ describe('parse', () => {
     const cache = new Map()
     const cfg = await editorconfig.parse(target, {cache})
     cfg.should.eql(expected)
-    cache.size.should.be.eql(1)
+    cache.size.should.be.eql(2)
     await editorconfig.parse(target, {cache})
-    cache.size.should.be.eql(1)
+    cache.size.should.be.eql(2)
   })
 
   it('caches sync', () => {
     const cache = new Map()
     const cfg = editorconfig.parseSync(target, {cache})
     cfg.should.eql(expected)
-    cache.size.should.be.eql(1)
+    cache.size.should.be.eql(2)
     editorconfig.parseSync(target, {cache})
-    cache.size.should.be.eql(1)
+    cache.size.should.be.eql(2)
   })
 })
 

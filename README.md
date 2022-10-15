@@ -64,7 +64,13 @@ Most of the API takes an `options` object, which has the following defaults:
       process might want to consider that this cache might grow over time,
       and that the config files might change over time.  However, we leave any
       complexity of that nature to the caller, since there are so many different
-      approaches that might be taken based on latency, memory, and CPU trade-offs.</dd>
+      approaches that might be taken based on latency, memory, and CPU trade-offs.
+      Note that some of the objects in the cache will be for files that did not
+      exist.  Those objects will have a `notfound: true` property.  All of the
+      objects will have a `name: string` property that contains the
+      fully-qualified file name of the config file and a `root: boolean` property
+      that describes if the config file had a `root=true` at the top.  Any other
+      properties in the objects should be treated as opaque.</dd>
 </dl>
 
 ### in Node.js:
