@@ -26,8 +26,12 @@ describe('parse', () => {
   })
 
   it('sync', () => {
-    const cfg = editorconfig.parseSync(target)
+    const visited: editorconfig.Visited[] = []
+    const cfg = editorconfig.parseSync(target, {files: visited})
     cfg.should.eql(expected)
+    visited.should.have.lengthOf(1)
+    visited[0].glob.should.eql('*')
+    visited[0].fileName.should.endWith('.editorconfig')
   })
 })
 

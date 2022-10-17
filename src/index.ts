@@ -39,10 +39,16 @@ export interface FileConfig {
   contents: ParseStringResult
 }
 
+export interface Visited {
+  fileName: string
+  glob: string
+}
+
 export interface ParseOptions {
   config?: string
   version?: string
   root?: string
+  files?: Visited[]
 }
 
 // These are specified by the editorconfig script
@@ -154,6 +160,7 @@ function processOptions(
     config: options.config || '.editorconfig',
     version: options.version || pkg.version,
     root: path.resolve(options.root || path.parse(filepath).root),
+    files: options.files,
   }
 }
 
@@ -172,12 +179,12 @@ function buildFullGlob(pathPrefix: string, glob: string): string {
   return `${pathPrefix}/${glob}`
 }
 
-function extendProps(props: Props, options: Props): Props {
+function extendProps(props: Props, options: SectionBody): Props {
   for (const key in options) {
     if (options.hasOwnProperty(key)) {
       const value = options[key]
       const key2 = key.toLowerCase()
-      let value2 = value
+      let value2: unknown = value
       if (knownProps[key2]) {
         // All of the values for the known props are lowercase.
         value2 = String(value).toLowerCase()
@@ -209,6 +216,7 @@ function parseFromConfigs(
           let pathPrefix = path.dirname(file.name)
 
           if (path.sep !== '/') {
+            // Windows-only
             pathPrefix = pathPrefix.replace(escapedSep, '/')
           }
 
@@ -230,6 +238,9 @@ function parseFromConfigs(
             const fullGlob = buildFullGlob(pathPrefix, glob)
             if (!fnmatch(filepath, fullGlob)) {
               return
+            }
+            if (options.files) {
+              options.files.push({fileName: file.name, glob})
             }
             matches = extendProps(matches, options2)
           })

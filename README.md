@@ -34,7 +34,8 @@ options is an object with the following defaults:
 {
   config: '.editorconfig',
   version: pkg.version,
-  root: '/'
+  root: '/',
+  files: undefined
 };
 ```
 
@@ -49,7 +50,7 @@ const path = require('path');
 const filePath = path.join(__dirname, 'sample.js');
 
 (async () => {
-  console.log(await editorconfig.parse(filePath));
+  console.log(await editorconfig.parse(filePath, {files: []}));
 })();
 /*
   {
@@ -61,8 +62,16 @@ const filePath = path.join(__dirname, 'sample.js');
     insert_final_newline: true,
     tab_width: 2
   };
+  assert.deepEqual(files, [
+    { fileName: '[DIRECTORY]/.editorconfig', glob: '*' },
+    { fileName: '[DIRECTORY]/.editorconfig', glob: '*.js' }
+  ])
 */
 ```
+
+When the `files` option is an array, it will be filled with objects that
+describe which .editorcofig files and glob section names contributed to the
+returned configuration.
 
 #### parseSync(filePath[, options])
 
@@ -81,7 +90,8 @@ options is an object with the following defaults:
 {
   config: '.editorconfig',
   version: pkg.version,
-  root: '/'
+  root: '/',
+  files: undefined
 };
 ```
 
@@ -129,18 +139,19 @@ Synchronous version of `editorconfig.parseFromFiles()`.
 ```bash
 $ ./bin/editorconfig
 
-    Usage: editorconfig [OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]
+Usage: editorconfig [options] <FILEPATH...>
 
-    EditorConfig Node.js Core Version 0.11.4-development
+Arguments:
+  FILEPATH       Files to find configuration for.  Can be a hyphen (-) if you
+                 want path(s) to be read from stdin.
 
-    FILEPATH can be a hyphen (-) if you want path(s) to be read from stdin.
-
-    Options:
-
-        -h, --help     output usage information
-        -V, --version  output the version number
-        -f <path>      Specify conf filename other than ".editorconfig"
-        -b <version>   Specify version (used by devs to test compatibility)
+Options:
+  -v, --version  Display version information from the package
+  -f <path>      Specify conf filename other than '.editorconfig'
+  -b <version>   Specify version (used by devs to test compatibility)
+  --files        Output file names that contributed to the configuration,
+                 rather than the configuation itself
+  -h, --help     display help for command
 ```
 
 Example:
@@ -152,6 +163,13 @@ insert_final_newline=true
 end_of_line=lf
 tab_width=8
 trim_trailing_whitespace=sometimes
+```
+
+```bash
+$ ./bin/editorconfig --files /home/zoidberg/humans/anatomy.md
+/home/zoidberg/.editorconfig [*]
+/home/zoidberg/.editorconfig [*.md]
+/home/zoidberg/humans/.editorconfig [*]
 ```
 
 ## Development
@@ -166,8 +184,7 @@ Next, run the following commands:
 
 ```bash
 $ npm run build
-$ npm run copy
-$ npm link ./dist
+$ npm link
 ```
 
 The global editorconfig will now point to the files in your development
@@ -197,7 +214,7 @@ $ npm test
 To run the tests with increased verbosity (for debugging test failures):
 
 ```bash
-$ npm run-script test-verbose
+$ npm run ci
 ```
 
 [EditorConfig C Core]: https://github.com/editorconfig/editorconfig-core
