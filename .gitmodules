@@ -2,6 +2,3 @@
 	path = tests
 	url = https://github.com/editorconfig/editorconfig-core-test.git
 	ignore = untracked
-[submodule "one-ini"]
-	path = one-ini
-	url = https://github.com/florianb/one-ini.git

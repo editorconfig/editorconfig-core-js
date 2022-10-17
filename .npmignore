@@ -6,6 +6,7 @@
 .gitmodules
 .mocharc.js
 .npmignore
+.vscode
 [Tt]ests/
 *.cmake
 *.log
@@ -23,7 +24,7 @@ CMakePresets.json
 coverage/
 CTest*
 Makefile
+SECURITY.md
 src/
 tsconfig.json
 tslint.json
-one-ini/
