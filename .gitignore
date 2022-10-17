@@ -1,3 +1,4 @@
+.vscode/
 [Tt]ests/
 *.cmake
 *.log
