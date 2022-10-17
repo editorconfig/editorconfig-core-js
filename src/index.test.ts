@@ -33,6 +33,24 @@ describe('parse', () => {
     visited[0].glob.should.eql('*')
     visited[0].fileName.should.endWith('.editorconfig')
   })
+
+  it('caches', async () => {
+    const cache = new Map()
+    const cfg = await editorconfig.parse(target, {cache})
+    cfg.should.eql(expected)
+    cache.size.should.be.eql(2)
+    await editorconfig.parse(target, {cache})
+    cache.size.should.be.eql(2)
+  })
+
+  it('caches sync', () => {
+    const cache = new Map()
+    const cfg = editorconfig.parseSync(target, {cache})
+    cfg.should.eql(expected)
+    cache.size.should.be.eql(2)
+    editorconfig.parseSync(target, {cache})
+    cache.size.should.be.eql(2)
+  })
 })
 
 describe('parseFromFiles', () => {
@@ -55,6 +73,10 @@ describe('parseFromFiles', () => {
     contents: fs.readFileSync(configPath),
   })
   const target = path.join(__dirname, '/app.js')
+  const configs2 = [
+    { name: 'early', contents: Buffer.alloc(0) },
+    configs[0],
+  ]
 
   it('async', async () => {
     const cfg: editorconfig.Props =
@@ -73,6 +95,34 @@ describe('parseFromFiles', () => {
       contents: Buffer.from('[*]\nfoo = null\n'),
     }])
     cfg.should.eql({ foo: 'null' })
+  })
+
+  it('caches async', async () => {
+    const cache = new Map()
+    const cfg = await editorconfig.parseFromFiles(
+      target, Promise.resolve(configs2), {cache}
+    )
+    cfg.should.eql(expected)
+    cache.size.should.be.eql(2)
+    const cfg2 = await editorconfig.parseFromFiles(
+      target, Promise.resolve(configs2), {cache}
+    )
+    cfg2.should.eql(expected)
+    cache.size.should.be.eql(2)
+  })
+
+  it('caches sync', () => {
+    const cache = new Map()
+    const cfg = editorconfig.parseFromFilesSync(
+      target, configs2, {cache}
+    )
+    cfg.should.eql(expected)
+    cache.size.should.be.eql(2)
+    const cfg2 = editorconfig.parseFromFilesSync(
+      target, configs2, {cache}
+    )
+    cfg2.should.eql(expected)
+    cache.size.should.be.eql(2)
   })
 
   it('handles minimatch escapables', () => {
@@ -121,5 +171,10 @@ describe('parseString', () => {
   it('handles errors', () => {
     const cfg = editorconfig.parseString('root: ')
     cfg.should.eql([[null, {}]])
+  })
+
+  it('handles backslashes in glob', () => {
+    const cfg = editorconfig.parseString('[a\\\\b]')
+    cfg.should.eql([[null, {}], ['a\\\\b', {}]])
   })
 })

@@ -24,22 +24,62 @@ $ npm install -g editorconfig
 
 ## Usage
 
-### in Node.js:
+### Options
 
-#### parse(filePath[, options])
-
-options is an object with the following defaults:
+Most of the API takes an `options` object, which has the following defaults:
 
 ```js
 {
   config: '.editorconfig',
   version: pkg.version,
   root: '/',
-  files: undefined
+  files: undefined,
+  cache: undefined,
 };
 ```
 
-Search for `.editorconfig` starting from the current directory to the root directory.
+<dl>
+  <dt>config</dt>
+  <dd>The name of the config file to look for in the current and every parent
+      directory.</dd>
+
+  <dt>version</dt>
+  <dd>Which editorconfig spec version to use.  Earlier versions had different
+      defaults.</dd>
+
+  <dt>root</dt>
+  <dd>What directory to stop processing in, even if we haven't found a file
+      containing root=true.  Defaults to the root of the filesystem containing
+      `process.cwd()`.</dd>
+
+  <dt>files</dt>
+  <dd>Pass in an empty array, which will be filled with one object for each
+      config file processed.  The objects will have the shape
+      `{filename: "[DIRECTORY]/.editorconfig", glob: "*"}`</dd>
+
+  <dt>cache</dt>
+  <dd>If you are going to process more than one file in the same project, pass
+      in a cache object.  It must have `get(string): object|undefined` and
+      `set(string, object)` methods, like a JavaScript Map.  A long-running
+      process might want to consider that this cache might grow over time,
+      and that the config files might change over time.  However, we leave any
+      complexity of that nature to the caller, since there are so many different
+      approaches that might be taken based on latency, memory, and CPU trade-offs.
+      Note that some of the objects in the cache will be for files that did not
+      exist.  Those objects will have a `notfound: true` property.  All of the
+      objects will have a `name: string` property that contains the
+      fully-qualified file name of the config file and a `root: boolean` property
+      that describes if the config file had a `root=true` at the top.  Any other
+      properties in the objects should be treated as opaque.</dd>
+</dl>
+
+### in Node.js:
+
+#### parse(filePath[, options])
+
+Search for `.editorconfig` files starting from the current directory to the
+root directory.  Combine all of the sections whose section names match
+filePath into a single object.
 
 Example:
 
@@ -69,33 +109,25 @@ const filePath = path.join(__dirname, 'sample.js');
 */
 ```
 
-When the `files` option is an array, it will be filled with objects that
-describe which .editorcofig files and glob section names contributed to the
-returned configuration.
-
 #### parseSync(filePath[, options])
 
 Synchronous version of `editorconfig.parse()`.
 
+#### parseBuffer(fileContent)
+
+The `parse()` function above uses `parseBuffer()` under the hood. If you have
+the contents of a config file, and want to see what is being processed for
+just that file rather than the full directory hierarchy, this might be useful.
+
 #### parseString(fileContent)
 
-The `parse()` function above uses `parseString()` under the hood. If you have your file contents
-just pass it to `parseString()` and it'll return the same results as `parse()`.
+This is a thin wrapper around `parseBuffer()` for backward-compatibility.
+Prefer `parseBuffer()` to avoid an unnecessary UTF8-to-UTF16-to-UTF8
+conversion.  Deprecated.
 
 #### parseFromFiles(filePath, configs[, options])
 
-options is an object with the following defaults:
-
-```js
-{
-  config: '.editorconfig',
-  version: pkg.version,
-  root: '/',
-  files: undefined
-};
-```
-
-Specify the `.editorconfig`.
+Low-level interface, which exists only for backward-compatibility.  Deprecated.
 
 Example:
 
@@ -115,7 +147,7 @@ const configs = [
 const filePath = path.join(__dirname, '/sample.js');
 
 (async () => {
-  console.log(await editorconfig.parseFromFiles(filePath, configs))
+  console.log(await editorconfig.parseFromFiles(filePath, Promise.resolve(configs)))
 })();
 /*
   {
@@ -132,7 +164,7 @@ const filePath = path.join(__dirname, '/sample.js');
 
 #### parseFromFilesSync(filePath, configs[, options])
 
-Synchronous version of `editorconfig.parseFromFiles()`.
+Synchronous version of `editorconfig.parseFromFiles()`.  Deprecated.
 
 ### in Command Line
 
