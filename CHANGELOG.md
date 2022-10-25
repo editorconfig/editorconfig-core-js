@@ -1,3 +1,8 @@
+## 1.0.1
+
+- Fixed #111 by updating to latest version of one-ini.  Config files that
+  contained empty comment lines would cause parse failures.
+
 ## 1.0.0
 
 - Upgrade dependencies, including moving to modern TS linting with eslint,
