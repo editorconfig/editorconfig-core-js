@@ -177,4 +177,10 @@ describe('parseString', () => {
     const cfg = editorconfig.parseString('[a\\\\b]')
     cfg.should.eql([[null, {}], ['a\\\\b', {}]])
   })
+
+
+  it('handles blank comments', () => {
+    const cfg = editorconfig.parseString('#')
+    cfg.should.eql([[null, {}]])
+  })
 })
