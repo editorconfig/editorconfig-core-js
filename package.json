@@ -18,7 +18,7 @@
     "lib": "./lib"
   },
   "scripts": {
-    "clean": "rimraf lib *.cmake Makefile",
+    "clean": "rimraf lib cmake_install.cmake CTestTestfile.cmake Makefile",
     "prebuild": "npm run clean",
     "build": "cmake . && tsc",
     "pretest": "npm run build && npm run lint",
