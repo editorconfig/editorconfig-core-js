@@ -1,3 +1,9 @@
+## 1.0.2
+
+- Updated all dependencies, including breaking changes from minimatch and
+  rimraf.
+- Removed @types/minimatch in favor of minimatch's built-in type definitions.
+
 ## 1.0.1
 
 - Fixed #111 by updating to latest version of one-ini.  Config files that
