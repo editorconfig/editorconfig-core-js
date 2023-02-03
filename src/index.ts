@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as semver from 'semver'
 
-import minimatch from 'minimatch'
+import { Minimatch } from 'minimatch'
 import { parse_to_uint32array, TokenTypes } from '@one-ini/wasm'
 
 // @ts-ignore So we can set the rootDir to be 'lib', without processing
@@ -35,7 +35,7 @@ export interface ECFile {
   contents?: Buffer
 }
 
-type SectionGlob = minimatch.Minimatch | null
+type SectionGlob = Minimatch | null
 type GlobbedProps = [SectionName, Props, SectionGlob][]
 
 export interface ProcessedFileConfig {
@@ -187,7 +187,7 @@ function processMatches(matches: Props, version: string): Props {
   return matches
 }
 
-function buildFullGlob(pathPrefix: string, glob: string): minimatch.Minimatch {
+function buildFullGlob(pathPrefix: string, glob: string): Minimatch {
   switch (glob.indexOf('/')) {
   case -1:
     glob = '**/' + glob
@@ -205,7 +205,7 @@ function buildFullGlob(pathPrefix: string, glob: string): minimatch.Minimatch {
   glob = glob.replace(/\*\*/g, '{*,**/**/**}')
 
   // NOT path.join.  Must stay in forward slashes.
-  return new minimatch.Minimatch(`${pathPrefix}/${glob}`, matchOptions)
+  return new Minimatch(`${pathPrefix}/${glob}`, matchOptions)
 }
 
 /**
