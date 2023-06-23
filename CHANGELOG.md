@@ -1,3 +1,7 @@
+## 1.0.3
+
+- Updated all dependencies, including security fixes for semver 7.3.8
+
 ## 1.0.2
 
 - Updated all dependencies, including breaking changes from minimatch and
