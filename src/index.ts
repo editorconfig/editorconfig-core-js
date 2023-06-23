@@ -223,6 +223,7 @@ function normalizeProps(options: SectionBody): Props {
       const value = options[key]
       const key2 = key.toLowerCase()
       let value2: unknown = value
+      // @ts-ignore -- Fix types here
       if (knownProps[key2]) {
         // All of the values for the known props are lowercase.
         value2 = String(value).toLowerCase()
@@ -235,6 +236,7 @@ function normalizeProps(options: SectionBody): Props {
         // in editorconfig) & should just be returned as regular strings.
         value2 = String(value)
       }
+      // @ts-ignore -- Fix types here
       props[key2] = value2
     }
   }
