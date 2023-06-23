@@ -178,9 +178,25 @@ describe('parseString', () => {
     cfg.should.eql([[null, {}], ['a\\\\b', {}]])
   })
 
-
   it('handles blank comments', () => {
     const cfg = editorconfig.parseString('#')
     cfg.should.eql([[null, {}]])
+  })
+})
+
+describe('extra behavior', () => {
+  it('handles extended globs', () => {
+    // These failed when we had noext: true in matchOptions
+    const matcher = editorconfig.matcher({
+      root: __dirname,
+    }, Buffer.from(`\
+[*]
+indent_size = 4
+
+[!(package).json]
+indent_size = 3`))
+
+    matcher(path.join(__dirname, 'package.json')).should.match({ indent_size: 4 })
+    matcher(path.join(__dirname, 'foo.json')).should.match({ indent_size: 3 })
   })
 })
