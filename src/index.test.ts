@@ -200,3 +200,20 @@ indent_size = 3`))
     matcher(path.join(__dirname, 'foo.json')).should.match({ indent_size: 3 })
   })
 })
+
+describe('unset', () => {
+  it('pair witht the value `unset`', () => {
+    const matcher = editorconfig.matcher({
+      root: __dirname,
+      unset: true,
+    }, Buffer.from(`\
+[*]
+indent_size = 4
+
+[*.json]
+indent_size = unset
+`))
+    matcher(path.join(__dirname, 'index.js')).should.match({ indent_size: 4 })
+    matcher(path.join(__dirname, 'index.json')).should.be.eql({ })
+  })
+})

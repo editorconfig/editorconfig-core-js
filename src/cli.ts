@@ -54,6 +54,7 @@ export default async function cli(
     .option('-f <path>',       'Specify conf filename other than \'.editorconfig\'')
     .option('-b <version>',    'Specify version (used by devs to test compatibility)')
     .option('--files',         'Output file names that contributed to the configuration, rather than the configuation itself')
+    .option('--unset',         'Remove all properties whose final value is \'unset\'')
     .parse(args)
 
   const files = program.args
@@ -73,6 +74,7 @@ export default async function cli(
         version: opts.b as string,
         files: visited ? visited[i++] : undefined,
         cache,
+        unset: Boolean(opts.unset),
       }))
     }
     return p

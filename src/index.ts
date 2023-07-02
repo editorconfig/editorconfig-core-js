@@ -61,6 +61,7 @@ export interface ParseOptions {
   root?: string
   files?: Visited[]
   cache?: Cache
+  unset?: boolean
 }
 
 const knownPropNames: (keyof KnownProps)[] = [
@@ -426,6 +427,7 @@ function opts(filepath: string, options: ParseOptions = {}): [
       root: path.resolve(options.root || path.parse(resolvedFilePath).root),
       files: options.files,
       cache: options.cache,
+      unset: options.unset,
     },
   ]
 }
@@ -507,9 +509,31 @@ function combine(
         }
       }
     }
+
     return props
   }, {})
+
+  if (options.unset) {
+    unset(ret)
+  }
+
   return processMatches(ret, options.version as string)
+}
+
+/**
+ * For any pair, a value of `unset` removes the effect of that pair, even if
+ * it has been set before.  This method modifies the properties object in
+ * place to remove any property that has a value of `unset`.
+ *
+ * @param props Properties object to modify.
+ */
+export function unset(props: Props): void {
+  const keys = Object.keys(props)
+  for (const k of keys) {
+    if (props[k] === 'unset') {
+      delete props[k]
+    }
+  }
 }
 
 /**

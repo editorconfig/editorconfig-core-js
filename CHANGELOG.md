@@ -1,3 +1,16 @@
+## 2.0.0
+
+- **Breaking**: Now requires Node v16+
+- Enable extended globbing from minimatch.  This means that some patterns will
+  work in this version might not work in other editorconfig implementations.
+  Fixes #84.
+- Add `unset` option to API and CLI.  When enabled, properties with the value
+  "unset" will be removed from the returned object.  Defaults to false in all
+  cases, since according to the core team, this is something that the editor
+  plugin is supposed to do, and the tests reinforce this. An `unset()`
+  function is now exported if you'd like to call it explicitly.
+  Fixes #123.
+
 ## 1.0.3
 
 - Updated all dependencies, including security fixes for semver 7.3.8
