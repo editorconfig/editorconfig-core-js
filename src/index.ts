@@ -10,7 +10,7 @@ import { parse_to_uint32array, TokenTypes } from '@one-ini/wasm'
 import pkg from '../package.json'
 
 const escapedSep = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g')
-const matchOptions = { matchBase: true, dot: true, noext: true }
+const matchOptions = { matchBase: true, dot: true }
 
 // These are specified by the editorconfig script
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -61,19 +61,18 @@ export interface ParseOptions {
   root?: string
   files?: Visited[]
   cache?: Cache
+  unset?: boolean
 }
 
-// These are specified by the editorconfig script
-/* eslint-disable @typescript-eslint/naming-convention */
-const knownProps = {
-  end_of_line: true,
-  indent_style: true,
-  indent_size: true,
-  insert_final_newline: true,
-  trim_trailing_whitespace: true,
-  charset: true,
-}
-/* eslint-enable @typescript-eslint/naming-convention */
+const knownPropNames: (keyof KnownProps)[] = [
+  'end_of_line',
+  'indent_style',
+  'indent_size',
+  'insert_final_newline',
+  'trim_trailing_whitespace',
+  'charset',
+]
+const knownProps = new Set<string>(knownPropNames)
 
 export type SectionName = string | null
 export interface SectionBody { [key: string]: string }
@@ -190,7 +189,7 @@ function processMatches(matches: Props, version: string): Props {
 function buildFullGlob(pathPrefix: string, glob: string): Minimatch {
   switch (glob.indexOf('/')) {
   case -1:
-    glob = '**/' + glob
+    glob = `**/${glob}`
     break
   case 0:
     glob = glob.substring(1)
@@ -217,14 +216,13 @@ function buildFullGlob(pathPrefix: string, glob: string): Minimatch {
  * @returns
  */
 function normalizeProps(options: SectionBody): Props {
-  const props = {}
+  const props: Props = {}
   for (const key in options) {
     if (options.hasOwnProperty(key)) {
       const value = options[key]
       const key2 = key.toLowerCase()
       let value2: unknown = value
-      // @ts-ignore -- Fix types here
-      if (knownProps[key2]) {
+      if (knownProps.has(key2)) {
         // All of the values for the known props are lowercase.
         value2 = String(value).toLowerCase()
       }
@@ -236,7 +234,6 @@ function normalizeProps(options: SectionBody): Props {
         // in editorconfig) & should just be returned as regular strings.
         value2 = String(value)
       }
-      // @ts-ignore -- Fix types here
       props[key2] = value2
     }
   }
@@ -430,6 +427,7 @@ function opts(filepath: string, options: ParseOptions = {}): [
       root: path.resolve(options.root || path.parse(resolvedFilePath).root),
       files: options.files,
       cache: options.cache,
+      unset: options.unset,
     },
   ]
 }
@@ -511,9 +509,31 @@ function combine(
         }
       }
     }
+
     return props
   }, {})
+
+  if (options.unset) {
+    unset(ret)
+  }
+
   return processMatches(ret, options.version as string)
+}
+
+/**
+ * For any pair, a value of `unset` removes the effect of that pair, even if
+ * it has been set before.  This method modifies the properties object in
+ * place to remove any property that has a value of `unset`.
+ *
+ * @param props Properties object to modify.
+ */
+export function unset(props: Props): void {
+  const keys = Object.keys(props)
+  for (const k of keys) {
+    if (props[k] === 'unset') {
+      delete props[k]
+    }
+  }
 }
 
 /**
@@ -550,4 +570,34 @@ export function parseSync(
   const filepaths = getConfigFileNames(resolvedFilePath, processedOptions)
   const configs = getAllConfigsSync(filepaths, processedOptions)
   return combine(resolvedFilePath, configs, processedOptions)
+}
+
+/**
+ * I think this may be of limited utility at the moment, but I need something
+ * like this for testing.  As such, the interface of this may change without
+ * warning.
+ *
+ * Something this direction may be better for editors than the caching bits
+ * we've got today, but that will need some thought.
+ *
+ * @param options All options.  root will be process.cwd if not specified.
+ * @param buffers 1 or more Buffers that have .editorconfig contents.
+ * @returns Function that can be called multiple times for different paths.
+ * @private
+ */
+export function matcher(
+  options: ParseOptions,
+  ...buffers: Buffer[]
+): (filepath: string) => Props {
+  const processedOptions = opts('', options)[1]
+  const configs = buffers.map(
+    (buf, i) => processFileContents(
+      path.join(processedOptions.root as string, `buffer-${i}`),
+      buf,
+      processedOptions
+    ))
+  return (filepath: string) => {
+    const resolvedFilePath = path.resolve(filepath)
+    return combine(resolvedFilePath, configs, processedOptions)
+  }
 }

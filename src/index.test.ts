@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as fs from 'fs'
 import * as path from 'path'
-import 'should'
+import 'chai/register-should.js'
 
 import * as editorconfig from './'
 
@@ -31,7 +31,7 @@ describe('parse', () => {
     cfg.should.eql(expected)
     visited.should.have.lengthOf(1)
     visited[0].glob.should.eql('*')
-    visited[0].fileName.should.endWith('.editorconfig')
+    visited[0].fileName.should.match(/\.editorconfig$/)
   })
 
   it('caches', async () => {
@@ -178,9 +178,42 @@ describe('parseString', () => {
     cfg.should.eql([[null, {}], ['a\\\\b', {}]])
   })
 
-
   it('handles blank comments', () => {
     const cfg = editorconfig.parseString('#')
     cfg.should.eql([[null, {}]])
+  })
+})
+
+describe('extra behavior', () => {
+  it('handles extended globs', () => {
+    // These failed when we had noext: true in matchOptions
+    const matcher = editorconfig.matcher({
+      root: __dirname,
+    }, Buffer.from(`\
+[*]
+indent_size = 4
+
+[!(package).json]
+indent_size = 3`))
+
+    matcher(path.join(__dirname, 'package.json')).should.include({ indent_size: 4 })
+    matcher(path.join(__dirname, 'foo.json')).should.include({ indent_size: 3 })
+  })
+})
+
+describe('unset', () => {
+  it('pair witht the value `unset`', () => {
+    const matcher = editorconfig.matcher({
+      root: __dirname,
+      unset: true,
+    }, Buffer.from(`\
+[*]
+indent_size = 4
+
+[*.json]
+indent_size = unset
+`))
+    matcher(path.join(__dirname, 'index.js')).should.include({ indent_size: 4 })
+    matcher(path.join(__dirname, 'index.json')).should.be.eql({ })
   })
 })
