@@ -35,6 +35,7 @@ Most of the API takes an `options` object, which has the following defaults:
   root: '/',
   files: undefined,
   cache: undefined,
+  unset: false,
 };
 ```
 
@@ -71,6 +72,11 @@ Most of the API takes an `options` object, which has the following defaults:
       fully-qualified file name of the config file and a `root: boolean` property
       that describes if the config file had a `root=true` at the top.  Any other
       properties in the objects should be treated as opaque.</dd>
+
+  <dt>unset</dt>
+  <dd>If true, after combining all properties, remove all properties whose value
+      remains as "unset".  This is typically left for plugin authors to do, and
+      the conformance tests assume that this value is always false.</dd>
 </dl>
 
 ### in Node.js:
