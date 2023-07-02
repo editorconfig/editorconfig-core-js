@@ -1,5 +1,4 @@
-import 'should'
-
+import 'chai/register-should.js'
 import cli from './cli'
 import type { Props } from './index'
 
@@ -43,17 +42,17 @@ async function exec(...args: string[]): Promise<Results> {
 describe('Command line interface', () => {
   it('helps', async () => {
     const res = await exec('--help')
-    res.stdout.should.startWith('Usage:')
+    res.stdout.should.match(/^Usage:/)
   })
 
   it('Lists files', async() => {
     const res = await exec('foo.md', '--files')
-    res.stdout.trim().should.endWith('.editorconfig [*.md]')
+    res.stdout.trim().should.match(/\.editorconfig \[\*\.md\]$/)
   })
 
   it('Lists multiple files', async() => {
     const res = await exec('foo.md', 'bar.js', '--files')
-    res.stdout.should.startWith('[foo.md]')
-    res.stdout.trim().should.endWith('.editorconfig [*]')
+    res.stdout.should.match(/^\[foo\.md\]/)
+    res.stdout.trim().should.match(/\.editorconfig \[\*\]$/)
   })
 })

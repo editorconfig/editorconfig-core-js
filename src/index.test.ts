@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as fs from 'fs'
 import * as path from 'path'
-import 'should'
+import 'chai/register-should.js'
 
 import * as editorconfig from './'
 
@@ -31,7 +31,7 @@ describe('parse', () => {
     cfg.should.eql(expected)
     visited.should.have.lengthOf(1)
     visited[0].glob.should.eql('*')
-    visited[0].fileName.should.endWith('.editorconfig')
+    visited[0].fileName.should.match(/\.editorconfig$/)
   })
 
   it('caches', async () => {
@@ -196,8 +196,8 @@ indent_size = 4
 [!(package).json]
 indent_size = 3`))
 
-    matcher(path.join(__dirname, 'package.json')).should.match({ indent_size: 4 })
-    matcher(path.join(__dirname, 'foo.json')).should.match({ indent_size: 3 })
+    matcher(path.join(__dirname, 'package.json')).should.include({ indent_size: 4 })
+    matcher(path.join(__dirname, 'foo.json')).should.include({ indent_size: 3 })
   })
 })
 
@@ -213,7 +213,7 @@ indent_size = 4
 [*.json]
 indent_size = unset
 `))
-    matcher(path.join(__dirname, 'index.js')).should.match({ indent_size: 4 })
+    matcher(path.join(__dirname, 'index.js')).should.include({ indent_size: 4 })
     matcher(path.join(__dirname, 'index.json')).should.be.eql({ })
   })
 })
