@@ -3,7 +3,7 @@
 # To perform the test, run `cmake .` at the root of the project tree followed
 # by `ctest .`
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 
 # Do not check any compiler
 project(editorconfig-core-js NONE)

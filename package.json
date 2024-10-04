@@ -28,7 +28,7 @@
     "coverage": "c8 npm run test:all",
     "postcoverage": "npm run build",
     "ci": "npm run coverage -- -- -VV --output-on-failure",
-    "lint": "eslint . --ext ts",
+    "lint": "eslint .",
     "prepub": "npm run lint && npm run build",
     "pub": "npm publish"
   },
@@ -41,36 +41,29 @@
   "license": "MIT",
   "dependencies": {
     "@one-ini/wasm": "0.1.1",
-    "commander": "^11.0.0",
-    "minimatch": "9.0.2",
-    "semver": "^7.5.3"
+    "commander": "^12.1.0",
+    "minimatch": "10.0.1",
+    "semver": "^7.6.3"
   },
   "devDependencies": {
-    "@types/chai": "4.3.5",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "^20.3.3",
-    "@types/semver": "^7.5.0",
-    "@typescript-eslint/eslint-plugin": "5.60.1",
-    "@typescript-eslint/parser": "5.60.1",
-    "c8": "8.0.0",
-    "chai": "4.3.7",
-    "eslint": "8.44.0",
-    "eslint-plugin-jsdoc": "46.4.3",
-    "mocha": "^10.2.0",
-    "rimraf": "^5.0.1",
-    "typescript": "^5.1.6"
+    "@cto.af/eslint-config": "4.1.6",
+    "@types/chai": "4.3.20",
+    "@types/mocha": "^10.0.8",
+    "@types/node": "^22.7.4",
+    "@types/semver": "^7.5.8",
+    "@typescript-eslint/eslint-plugin": "8.8.0",
+    "@typescript-eslint/parser": "8.8.0",
+    "c8": "10.1.2",
+    "chai": "4.5.0",
+    "eslint": "9.11.1",
+    "eslint-plugin-jsdoc": "50.3.1",
+    "mocha": "^10.7.3",
+    "rimraf": "^6.0.1",
+    "typescript": "5.5.4",
+    "typescript-eslint": "8.8.0"
   },
-  "pnpm": {
-    "overrides": {
-      "semver": ">=7.5.3",
-      "word-wrap": "npm:@aashutoshrathi/word-wrap"
-    }
-  },
-  "overrides": {
-    "semver": "$semver",
-    "word-wrap": "npm:@aashutoshrathi/word-wrap"
-  },
+  "packageManager": "pnpm@9.12.0",
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   }
 }
