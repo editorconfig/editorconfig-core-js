@@ -1,67 +1,64 @@
-import * as fs from 'fs'
-import * as path from 'path'
-import * as semver from 'semver'
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as semver from 'semver';
 
-import { Minimatch } from 'minimatch'
-import { parse_to_uint32array, TokenTypes } from '@one-ini/wasm'
+import {TokenTypes, parse_to_uint32array} from '@one-ini/wasm';
+import {Buffer} from 'node:buffer';
+import {Minimatch} from 'minimatch';
 
-// @ts-ignore So we can set the rootDir to be 'lib', without processing
-// package.json
-import pkg from '../package.json'
+import pkg from '../package.json';
 
-const escapedSep = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g')
-const matchOptions = { matchBase: true, dot: true }
+const escapedSep = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g');
+const matchOptions = {matchBase: true, dot: true};
 
 // These are specified by the editorconfig script
-/* eslint-disable @typescript-eslint/naming-convention */
 export interface KnownProps {
-  end_of_line?: 'lf' | 'crlf' | 'unset'
-  indent_style?: 'tab' | 'space' | 'unset'
-  indent_size?: number | 'tab' | 'unset'
-  insert_final_newline?: true | false | 'unset'
-  tab_width?: number | 'unset'
-  trim_trailing_whitespace?: true | false | 'unset'
-  charset?: string | 'unset'
+  end_of_line?: 'lf' | 'crlf' | 'unset';
+  indent_style?: 'tab' | 'space' | 'unset';
+  indent_size?: number | 'tab' | 'unset';
+  insert_final_newline?: true | false | 'unset';
+  tab_width?: number | 'unset';
+  trim_trailing_whitespace?: true | false | 'unset';
+  charset?: string | 'unset';
 }
-/* eslint-enable @typescript-eslint/naming-convention */
 
 interface UnknownMap {
-  [index: string]: unknown
+  [index: string]: unknown;
 }
-export type Props = KnownProps & UnknownMap
+export type Props = KnownProps & UnknownMap;
 
 export interface ECFile {
-  name: string
-  contents?: Buffer
+  name: string;
+  contents?: Buffer;
 }
 
-type SectionGlob = Minimatch | null
-type GlobbedProps = [SectionName, Props, SectionGlob][]
+type SectionGlob = Minimatch | null;
+type GlobbedProps = [SectionName, Props, SectionGlob][];
 
 export interface ProcessedFileConfig {
-  root: boolean
-  name: string
-  config: GlobbedProps
-  notfound?: true
+  root: boolean;
+  name: string;
+  config: GlobbedProps;
+  notfound?: true;
 }
 
 export interface Visited {
-  fileName: string
-  glob: string
+  fileName: string;
+  glob: string;
 }
 
 export interface Cache {
-  get(path: string): ProcessedFileConfig | undefined
-  set(path: string, config: ProcessedFileConfig): this
+  get(path: string): ProcessedFileConfig | undefined;
+  set(path: string, config: ProcessedFileConfig): this;
 }
 
 export interface ParseOptions {
-  config?: string
-  version?: string
-  root?: string
-  files?: Visited[]
-  cache?: Cache
-  unset?: boolean
+  config?: string;
+  version?: string;
+  root?: string;
+  files?: Visited[];
+  cache?: Cache;
+  unset?: boolean;
 }
 
 const knownPropNames: (keyof KnownProps)[] = [
@@ -71,12 +68,14 @@ const knownPropNames: (keyof KnownProps)[] = [
   'insert_final_newline',
   'trim_trailing_whitespace',
   'charset',
-]
-const knownProps = new Set<string>(knownPropNames)
+];
+const knownProps = new Set<string>(knownPropNames);
 
-export type SectionName = string | null
-export interface SectionBody { [key: string]: string }
-export type ParseStringResult = [SectionName, SectionBody][]
+export type SectionName = string | null;
+export interface SectionBody {
+  [key: string]: string;
+}
+export type ParseStringResult = [SectionName, SectionBody][];
 
 /**
  * Parse a buffer using the faster one-ini WASM approach into something
@@ -86,33 +85,33 @@ export type ParseStringResult = [SectionName, SectionBody][]
  * @returns Parsed contents.  Will be truncated if there was a parse error.
  */
 export function parseBuffer(data: Buffer): ParseStringResult {
-  const parsed = parse_to_uint32array(data)
-  let cur: SectionBody = {}
-  const res: ParseStringResult = [[null, cur]]
-  let key: string | null = null
+  const parsed = parse_to_uint32array(data);
+  let cur: SectionBody = {};
+  const res: ParseStringResult = [[null, cur]];
+  let key: string | null = null;
 
   for (let i = 0; i < parsed.length; i += 3) {
     switch (parsed[i]) {
-    case TokenTypes.Section: {
-      cur = {}
-      res.push([
-        data.toString('utf8', parsed[i+1], parsed[i+2]),
-        cur,
-      ])
-      break
-    }
-    case TokenTypes.Key:
-      key = data.toString('utf8', parsed[i+1], parsed[i+2])
-      break
-    case TokenTypes.Value: {
-      cur[key as string] = data.toString('utf8', parsed[i+1], parsed[i+2])
-      break
-    }
-    default: // Comments, etc.
-      break
+      case TokenTypes.Section: {
+        cur = {};
+        res.push([
+          data.toString('utf8', parsed[i + 1], parsed[i + 2]),
+          cur,
+        ]);
+        break;
+      }
+      case TokenTypes.Key:
+        key = data.toString('utf8', parsed[i + 1], parsed[i + 2]);
+        break;
+      case TokenTypes.Value: {
+        cur[key as string] = data.toString('utf8', parsed[i + 1], parsed[i + 2]);
+        break;
+      }
+      default: // Comments, etc.
+        break;
     }
   }
-  return res
+  return res;
 }
 
 /**
@@ -124,7 +123,7 @@ export function parseBuffer(data: Buffer): ParseStringResult {
  * @deprecated Use {@link ParseBuffer} instead.
  */
 export function parseString(data: string): ParseStringResult {
-  return parseBuffer(Buffer.from(data))
+  return parseBuffer(Buffer.from(data));
 }
 
 /**
@@ -136,12 +135,12 @@ export function parseString(data: string): ParseStringResult {
  * @returns List of potential fully-qualified filenames that might have configs.
  */
 function getConfigFileNames(filepath: string, options: ParseOptions): string[] {
-  const paths = []
+  const paths = [];
   do {
-    filepath = path.dirname(filepath)
-    paths.push(path.join(filepath, options.config as string))
-  } while (filepath !== options.root)
-  return paths
+    filepath = path.dirname(filepath);
+    paths.push(path.join(filepath, options.config as string));
+  } while (filepath !== options.root);
+  return paths;
 }
 
 /**
@@ -156,55 +155,57 @@ function processMatches(matches: Props, version: string): Props {
   // Set indent_size to 'tab' if indent_size is unspecified and
   // indent_style is set to 'tab'.
   if (
-    'indent_style' in matches
-    && matches.indent_style === 'tab'
-    && !('indent_size' in matches)
-    && semver.gte(version, '0.10.0')
+    'indent_style' in matches &&
+    matches.indent_style === 'tab' &&
+    !('indent_size' in matches) &&
+    semver.gte(version, '0.10.0')
   ) {
-    matches.indent_size = 'tab'
+    matches.indent_size = 'tab';
   }
 
   // Set tab_width to indent_size if indent_size is specified and
   // tab_width is unspecified
   if (
-    'indent_size' in matches
-    && !('tab_width' in matches)
-    && matches.indent_size !== 'tab'
+    'indent_size' in matches &&
+    !('tab_width' in matches) &&
+    matches.indent_size !== 'tab'
   ) {
-    matches.tab_width = matches.indent_size
+    matches.tab_width = matches.indent_size;
   }
 
   // Set indent_size to tab_width if indent_size is 'tab'
   if (
-    'indent_size' in matches
-    && 'tab_width' in matches
-    && matches.indent_size === 'tab'
+    'indent_size' in matches &&
+    'tab_width' in matches &&
+    matches.indent_size === 'tab'
   ) {
-    matches.indent_size = matches.tab_width
+    matches.indent_size = matches.tab_width;
   }
 
-  return matches
+  return matches;
 }
 
 function buildFullGlob(pathPrefix: string, glob: string): Minimatch {
   switch (glob.indexOf('/')) {
-  case -1:
-    glob = `**/${glob}`
-    break
-  case 0:
-    glob = glob.substring(1)
-    break
-  default:
-    break
+    case -1:
+      glob = `**/${glob}`;
+      break;
+    case 0:
+      glob = glob.substring(1);
+      break;
+    default:
+      break;
   }
+  //
   // braces_escaped_backslash2
   // backslash_not_on_windows
-  glob = glob.replace(/\\\\/g, '\\\\\\\\')
+  glob = glob.replace(/\\\\/g, '\\\\\\\\');
+  //
   // star_star_over_separator{1,3,5,6,9,15}
-  glob = glob.replace(/\*\*/g, '{*,**/**/**}')
+  glob = glob.replace(/\*\*/g, '{*,**/**/**}');
 
   // NOT path.join.  Must stay in forward slashes.
-  return new Minimatch(`${pathPrefix}/${glob}`, matchOptions)
+  return new Minimatch(`${pathPrefix}/${glob}`, matchOptions);
 }
 
 /**
@@ -216,28 +217,31 @@ function buildFullGlob(pathPrefix: string, glob: string): Minimatch {
  * @returns
  */
 function normalizeProps(options: SectionBody): Props {
-  const props: Props = {}
+  const props: Props = {};
   for (const key in options) {
-    if (options.hasOwnProperty(key)) {
-      const value = options[key]
-      const key2 = key.toLowerCase()
-      let value2: unknown = value
+    if (Object.prototype.hasOwnProperty.call(options, key)) {
+      const value = options[key];
+      const key2 = key.toLowerCase();
+      let value2: unknown = value;
       if (knownProps.has(key2)) {
         // All of the values for the known props are lowercase.
-        value2 = String(value).toLowerCase()
+        value2 = String(value).toLowerCase();
       }
       try {
-        value2 = JSON.parse(String(value))
-      } catch (e) {}
+        value2 = JSON.parse(String(value));
+      } catch (_e) {
+        // Ignored
+      }
       if (typeof value2 === 'undefined' || value2 === null) {
+        //
         // null and undefined are values specific to JSON (no special meaning
         // in editorconfig) & should just be returned as regular strings.
-        value2 = String(value)
+        value2 = String(value);
       }
-      props[key2] = value2
+      props[key2] = value2;
     }
   }
-  return props
+  return props;
 }
 
 /**
@@ -252,24 +256,25 @@ function normalizeProps(options: SectionBody): Props {
  */
 function processFileContents(
   filepath: string,
-  contents: Buffer|undefined,
+  contents: Buffer | undefined,
   options: ParseOptions
 ): ProcessedFileConfig {
-  let res: ProcessedFileConfig
+  let res: ProcessedFileConfig | undefined = undefined;
+  // eslint-disable-next-line no-negated-condition
   if (!contents) {
     // Negative cache
     res = {
       root: false,
       notfound: true,
       name: filepath,
-      config: [[ null, {}, null ]],
-    }
+      config: [[null, {}, null]],
+    };
   } else {
-    let pathPrefix = path.dirname(filepath)
+    let pathPrefix = path.dirname(filepath);
 
     if (path.sep !== '/') {
       // Windows-only
-      pathPrefix = pathPrefix.replace(escapedSep, '/')
+      pathPrefix = pathPrefix.replace(escapedSep, '/');
     }
 
     // After Windows path backslash's are turned into slashes, so that
@@ -278,27 +283,27 @@ function processFileContents(
     // All of these characters are special to minimatch, but can be
     // forced into path names on many file systems.  Escape them. Note
     // that these are in the order of the case statement in minimatch.
-    pathPrefix = pathPrefix.replace(/[?*+@!()|[\]{}]/g, '\\$&')
+    pathPrefix = pathPrefix.replace(/[?*+@!()|[\]{}]/g, '\\$&');
     // I can't think of a way for this to happen in the filesystems I've
     // seen (because of the path.dirname above), but let's be thorough.
-    pathPrefix = pathPrefix.replace(/^#/, '\\#')
+    pathPrefix = pathPrefix.replace(/^#/, '\\#');
 
     const globbed: GlobbedProps = parseBuffer(contents).map(([name, body]) => [
       name,
       normalizeProps(body),
       name ? buildFullGlob(pathPrefix, name) : null,
-    ])
+    ]);
 
     res = {
-      root: !!globbed[0][1].root, // globbed[0] is the global section
+      root: Boolean(globbed[0][1].root), // Global section: globbed[0]
       name: filepath,
       config: globbed,
-    }
+    };
   }
   if (options.cache) {
-    options.cache.set(filepath, res)
+    options.cache.set(filepath, res);
   }
-  return res
+  return res;
 }
 
 /**
@@ -314,19 +319,19 @@ async function getConfig(
   options: ParseOptions
 ): Promise<ProcessedFileConfig> {
   if (options.cache) {
-    const cached = options.cache.get(filepath)
+    const cached = options.cache.get(filepath);
     if (cached) {
-      return cached
+      return cached;
     }
   }
-  const contents = await new Promise<Buffer|undefined>(resolve => {
+  const contents = await new Promise<Buffer | undefined>(resolve => {
     fs.readFile(filepath, (_, buf) => {
       // Ignore errors.  contents will be undefined
       // Perhaps only file-not-found should be ignored?
-      resolve(buf)
-    })
-  })
-  return processFileContents(filepath, contents, options)
+      resolve(buf);
+    });
+  });
+  return processFileContents(filepath, contents, options);
 }
 
 /**
@@ -342,19 +347,19 @@ function getConfigSync(
   options: ParseOptions
 ): ProcessedFileConfig {
   if (options.cache) {
-    const cached = options.cache.get(filepath)
+    const cached = options.cache.get(filepath);
     if (cached) {
-      return cached
+      return cached;
     }
   }
-  let contents: Buffer | undefined
+  let contents: Buffer | undefined = undefined;
   try {
-    contents = fs.readFileSync(filepath)
+    contents = fs.readFileSync(filepath);
   } catch (_) {
     // Ignore errors
     // Perhaps only file-not-found should be ignored
   }
-  return processFileContents(filepath, contents, options)
+  return processFileContents(filepath, contents, options);
 }
 
 /**
@@ -369,17 +374,17 @@ async function getAllConfigs(
   files: string[],
   options: ParseOptions
 ): Promise<ProcessedFileConfig[]> {
-  const configs: ProcessedFileConfig[] = []
+  const configs: ProcessedFileConfig[] = [];
   for (const file of files) {
-    const config = await getConfig(file, options)
+    const config = await getConfig(file, options);
     if (!config.notfound) {
-      configs.push(config)
+      configs.push(config);
       if (config.root) {
-        break
+        break;
       }
     }
   }
-  return configs
+  return configs;
 }
 
 /**
@@ -394,17 +399,17 @@ function getAllConfigsSync(
   files: string[],
   options: ParseOptions
 ): ProcessedFileConfig[] {
-  const configs: ProcessedFileConfig[] = []
+  const configs: ProcessedFileConfig[] = [];
   for (const file of files) {
-    const config = getConfigSync(file, options)
+    const config = getConfigSync(file, options);
     if (!config.notfound) {
-      configs.push(config)
+      configs.push(config);
       if (config.root) {
-        break
+        break;
       }
     }
   }
-  return configs
+  return configs;
 }
 
 /**
@@ -415,10 +420,10 @@ function getAllConfigsSync(
  * @returns The fully-qualified target file name and the normalized options.
  */
 function opts(filepath: string, options: ParseOptions = {}): [
-  string,
-  ParseOptions
+  fileName: string,
+  normalizedOptions: ParseOptions,
 ] {
-  const resolvedFilePath = path.resolve(filepath)
+  const resolvedFilePath = path.resolve(filepath);
   return [
     resolvedFilePath,
     {
@@ -429,58 +434,24 @@ function opts(filepath: string, options: ParseOptions = {}): [
       cache: options.cache,
       unset: options.unset,
     },
-  ]
+  ];
 }
 
 /**
- * Low-level interface, which exists only for backward-compatibility.
- * Deprecated.
+ * For any pair, a value of `unset` removes the effect of that pair, even if
+ * it has been set before.  This method modifies the properties object in
+ * place to remove any property that has a value of `unset`.
  *
- * @param filepath The name of the target file, relative to process.cwd().
- * @param files A promise for a list of objects describing the files.
- * @param options All options
- * @returns The properties found for filepath
- * @deprecated
+ * @param props Properties object to modify.
  */
-export async function parseFromFiles(
-  filepath: string,
-  files: Promise<ECFile[]>,
-  options: ParseOptions = {}
-): Promise<Props> {
-  return parseFromFilesSync(filepath, await files, options)
-}
-
-/**
- * Low-level interface, which exists only for backward-compatibility.
- * Deprecated.
- *
- * @param filepath The name of the target file, relative to process.cwd().
- * @param files A list of objects describing the files.
- * @param options All options
- * @returns The properties found for filepath
- * @deprecated
- */
-export function parseFromFilesSync(
-  filepath: string,
-  files: ECFile[],
-  options: ParseOptions = {}
-): Props {
-  const [resolvedFilePath, processedOptions] = opts(filepath, options)
-  const configs = []
-  for (const ecf of files) {
-    let cfg: ProcessedFileConfig | undefined
-    if (!options.cache || !(cfg = options.cache.get(ecf.name))) { // Single "="!
-      cfg = processFileContents(ecf.name, ecf.contents, processedOptions)
-    }
-    if (!cfg.notfound) {
-      configs.push(cfg)
-    }
-    if (cfg.root) {
-      break
+export function unset(props: Props): void {
+  const keys = Object.keys(props);
+  for (const k of keys) {
+    if (props[k] === 'unset') {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete props[k];
     }
   }
-
-  return combine(resolvedFilePath, configs, processedOptions)
 }
 
 /**
@@ -499,41 +470,77 @@ function combine(
 ): Props {
   const ret = configs.reverse().reduce((props: Props, processed) => {
     for (const [name, body, glob] of processed.config) {
-      if (glob && glob.match(filepath)) {
-        Object.assign(props, body)
+      if (glob?.match(filepath)) {
+        Object.assign(props, body);
         if (options.files) {
           options.files.push({
             fileName: processed.name,
             glob: name as string,
-          })
+          });
         }
       }
     }
 
-    return props
-  }, {})
+    return props;
+  }, {});
 
   if (options.unset) {
-    unset(ret)
+    unset(ret);
   }
 
-  return processMatches(ret, options.version as string)
+  return processMatches(ret, options.version as string);
 }
 
 /**
- * For any pair, a value of `unset` removes the effect of that pair, even if
- * it has been set before.  This method modifies the properties object in
- * place to remove any property that has a value of `unset`.
+ * Low-level interface, which exists only for backward-compatibility.
+ * Deprecated.
  *
- * @param props Properties object to modify.
+ * @param filepath The name of the target file, relative to process.cwd().
+ * @param files A list of objects describing the files.
+ * @param options All options
+ * @returns The properties found for filepath
+ * @deprecated
  */
-export function unset(props: Props): void {
-  const keys = Object.keys(props)
-  for (const k of keys) {
-    if (props[k] === 'unset') {
-      delete props[k]
+export function parseFromFilesSync(
+  filepath: string,
+  files: ECFile[],
+  options: ParseOptions = {}
+): Props {
+  const [resolvedFilePath, processedOptions] = opts(filepath, options);
+  const configs = [];
+  for (const ecf of files) {
+    let cfg: ProcessedFileConfig | undefined = undefined;
+    if (!options.cache || !(cfg = options.cache.get(ecf.name))) { // Single "="!
+      cfg = processFileContents(ecf.name, ecf.contents, processedOptions);
+    }
+    if (!cfg.notfound) {
+      configs.push(cfg);
+    }
+    if (cfg.root) {
+      break;
     }
   }
+
+  return combine(resolvedFilePath, configs, processedOptions);
+}
+
+/**
+ * Low-level interface, which exists only for backward-compatibility.
+ * Deprecated.
+ *
+ * @param filepath The name of the target file, relative to process.cwd().
+ * @param files A promise for a list of objects describing the files.
+ * @param options All options
+ * @returns The properties found for filepath
+ * @deprecated
+ */
+export async function parseFromFiles(
+  filepath: string,
+  files: Promise<ECFile[]>,
+  options: ParseOptions = {}
+): Promise<Props> {
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
+  return parseFromFilesSync(filepath, await files, options);
 }
 
 /**
@@ -548,10 +555,10 @@ export async function parse(
   filepath: string,
   options: ParseOptions = {}
 ): Promise<Props> {
-  const [resolvedFilePath, processedOptions] = opts(filepath, options)
-  const filepaths = getConfigFileNames(resolvedFilePath, processedOptions)
-  const configs = await getAllConfigs(filepaths, processedOptions)
-  return combine(resolvedFilePath, configs, processedOptions)
+  const [resolvedFilePath, processedOptions] = opts(filepath, options);
+  const filepaths = getConfigFileNames(resolvedFilePath, processedOptions);
+  const configs = await getAllConfigs(filepaths, processedOptions);
+  return combine(resolvedFilePath, configs, processedOptions);
 }
 
 /**
@@ -566,10 +573,10 @@ export function parseSync(
   filepath: string,
   options: ParseOptions = {}
 ): Props {
-  const [resolvedFilePath, processedOptions] = opts(filepath, options)
-  const filepaths = getConfigFileNames(resolvedFilePath, processedOptions)
-  const configs = getAllConfigsSync(filepaths, processedOptions)
-  return combine(resolvedFilePath, configs, processedOptions)
+  const [resolvedFilePath, processedOptions] = opts(filepath, options);
+  const filepaths = getConfigFileNames(resolvedFilePath, processedOptions);
+  const configs = getAllConfigsSync(filepaths, processedOptions);
+  return combine(resolvedFilePath, configs, processedOptions);
 }
 
 /**
@@ -589,15 +596,14 @@ export function matcher(
   options: ParseOptions,
   ...buffers: Buffer[]
 ): (filepath: string) => Props {
-  const processedOptions = opts('', options)[1]
-  const configs = buffers.map(
-    (buf, i) => processFileContents(
-      path.join(processedOptions.root as string, `buffer-${i}`),
-      buf,
-      processedOptions
-    ))
+  const [_fileName, processedOptions] = opts('', options);
+  const configs = buffers.map((buf, i) => processFileContents(
+    path.join(processedOptions.root as string, `buffer-${i}`),
+    buf,
+    processedOptions
+  ));
   return (filepath: string) => {
-    const resolvedFilePath = path.resolve(filepath)
-    return combine(resolvedFilePath, configs, processedOptions)
-  }
+    const resolvedFilePath = path.resolve(filepath);
+    return combine(resolvedFilePath, configs, processedOptions);
+  };
 }
