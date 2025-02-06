@@ -26,6 +26,7 @@ jobs:
           cache: pnpm
       - run: pnpm i -r
       - run: npm run build
+      - run: npm pkg delete devDependencies scripts packageManager pnpm
       - run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

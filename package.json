@@ -65,5 +65,10 @@
   "packageManager": "pnpm@10.2.0",
   "engines": {
     "node": ">=18"
+  },
+  "pnpm": {
+    "overrides": {
+      "cross-spawn": "7.0.6"
+    }
   }
 }
