@@ -24,7 +24,7 @@ jobs:
           submodules: true
       - name: install corepack
         run: |
-          npm install -g corepack@latest
+          npm install -g corepack@latest --force
           corepack enable
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
