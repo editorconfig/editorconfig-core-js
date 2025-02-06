@@ -1,4 +1,3 @@
-// eslint-disable-next-line n/no-missing-import
 import 'chai/register-should.js';
 import type {Props} from './index.js';
 import cli from './cli.js';

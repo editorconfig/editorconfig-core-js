@@ -91,7 +91,7 @@ export function parseBuffer(data: Buffer): ParseStringResult {
   let key: string | null = null;
 
   for (let i = 0; i < parsed.length; i += 3) {
-    switch (parsed[i]) {
+    switch (parsed[i] as TokenTypes) {
       case TokenTypes.Section: {
         cur = {};
         res.push([
@@ -480,7 +480,6 @@ function combine(
         }
       }
     }
-
     return props;
   }, {});
 

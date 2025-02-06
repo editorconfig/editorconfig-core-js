@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
-// eslint-disable-next-line n/no-missing-import
 import 'chai/register-should.js';
 import * as editorconfig from './index.js';
 import * as fs from 'node:fs';
