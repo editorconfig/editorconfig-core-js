@@ -22,7 +22,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - run: corepack enable
+      - name: install corepack
+        run: |
+          npm install -g corepack@latest
+          corepack enable
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
