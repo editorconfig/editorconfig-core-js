@@ -7,10 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  workflow_call:
-    secrets:
-      CODECOV_TOKEN:
-        required: true
 
 jobs:
   build:
@@ -42,7 +38,22 @@ jobs:
         run: npm run lint
       - name: Test
         run: npm run ci
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+      # Stay on coveralls instead of codecov, since hildjj doesn't own the
+      # repo directly, and it's too much work to figure out.
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          github-token: ${{ secrets.github_token }}
+          flag-name: node-${{ matrix.node-version }}
+          path-to-lcov: ./coverage/lcov.info
+          parallel: true
+  finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./coverage/lcov.info
+          parallel-finished: true
