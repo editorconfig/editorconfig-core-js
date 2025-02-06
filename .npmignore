@@ -5,6 +5,7 @@
 .github
 .gitmodules
 .mocharc.js
+.ncurc
 .npmignore
 .vscode
 [Tt]ests/

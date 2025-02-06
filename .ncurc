@@ -1,0 +1,7 @@
+{
+  "dep": ["prod", "dev", "packageManager"],
+  "reject": [
+    "chai",
+    "@types/chai"
+  ]
+}
