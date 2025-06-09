@@ -10,4 +10,13 @@ export default [
   },
   ...base,
   ...ts,
+  {
+    files: [
+      'src/index.ts',
+    ],
+    rules: {
+      // We are extra-careful with some inputs.
+      '@typescript-eslint/no-unnecessary-type-conversion': 'off',
+    },
+  },
 ];
