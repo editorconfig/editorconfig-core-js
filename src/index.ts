@@ -19,7 +19,7 @@ export interface KnownProps {
   insert_final_newline?: true | false | 'unset';
   tab_width?: number | 'unset';
   trim_trailing_whitespace?: true | false | 'unset';
-  charset?: string | 'unset';
+  charset?: 'latin1' | 'utf-8' | 'utf-8-bom' | 'utf-16be' | 'utf-16le' | 'unset';
 }
 
 interface UnknownMap {
