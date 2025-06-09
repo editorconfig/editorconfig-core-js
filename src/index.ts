@@ -13,19 +13,23 @@ const matchOptions = {matchBase: true, dot: true};
 
 // These are specified by the editorconfig script
 export interface KnownProps {
+  charset?: 'latin1' | 'utf-8' | 'utf-8-bom' | 'utf-16be' | 'utf-16le' | 'unset';
   end_of_line?: 'lf' | 'crlf' | 'unset';
-  indent_style?: 'tab' | 'space' | 'unset';
   indent_size?: number | 'tab' | 'unset';
+  indent_style?: 'tab' | 'space' | 'unset';
   insert_final_newline?: true | false | 'unset';
   tab_width?: number | 'unset';
   trim_trailing_whitespace?: true | false | 'unset';
-  charset?: 'latin1' | 'utf-8' | 'utf-8-bom' | 'utf-16be' | 'utf-16le' | 'unset';
 }
 
-interface UnknownMap {
+export interface UnknownMap {
   [index: string]: unknown;
 }
-export type Props = KnownProps & UnknownMap;
+export type AddAnyToValues<T extends object> = {
+  [K in keyof T]: T[K] | any;
+};
+
+export type Props = AddAnyToValues<KnownProps> & UnknownMap;
 
 export interface ECFile {
   name: string;
@@ -62,12 +66,13 @@ export interface ParseOptions {
 }
 
 const knownPropNames: (keyof KnownProps)[] = [
-  'end_of_line',
-  'indent_style',
-  'indent_size',
-  'insert_final_newline',
-  'trim_trailing_whitespace',
   'charset',
+  'end_of_line',
+  'indent_size',
+  'indent_style',
+  'insert_final_newline',
+  // 'tab_width' // This should be an integer, not a string.
+  'trim_trailing_whitespace',
 ];
 const knownProps = new Set<string>(knownPropNames);
 
