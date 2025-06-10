@@ -26,13 +26,13 @@ export interface UnknownMap {
   [index: string]: unknown;
 }
 
-export type PossibleValues = boolean | number | (string & {});
+export type PossibleValue = boolean | number | (string & {});
 
-export type AddAnyToValues<T extends object> = {
-  [K in keyof T]: T[K] | PossibleValues;
+export type AddPossibleValues<T extends object> = {
+  [K in keyof T]: T[K] | PossibleValue;
 };
 
-export type Props = AddAnyToValues<KnownProps> & UnknownMap;
+export type Props = AddPossibleValues<KnownProps> & UnknownMap;
 
 export interface ECFile {
   name: string;
