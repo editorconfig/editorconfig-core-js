@@ -13,12 +13,60 @@ const matchOptions = {matchBase: true, dot: true};
 
 // These are specified by the editorconfig script
 export interface KnownProps {
+  /**
+  * Specifies the character set. Use of `utf-8-bom` is discouraged.
+  */
   charset?: 'latin1' | 'utf-8' | 'utf-8-bom' | 'utf-16be' | 'utf-16le' | 'unset';
+
+  /**
+  * Specifies how line breaks are represented.
+  */
   end_of_line?: 'lf' | 'crlf' | 'unset';
+
+  /**
+  * Specifies the number of columns used for each indentation level
+  * and the width of soft tabs (when supported).
+  *
+  * If `indent_size` in the config is set to `tab`,
+  * the value of this property will be:
+  * - the same as the value of the {@link KnownProps.tab_width tab_width}
+  * if it is specified;
+  * - `tab` if it is not.
+  */
   indent_size?: number | 'tab' | 'unset';
+
+  /**
+   * Specifies whether tabs or spaces should be used for indentation.
+   * - `tab`: Use hard tabs for indentation,
+   * filling the remainder with spaces if needed.
+   * - `space`: Use spaces for indentation.
+   */
   indent_style?: 'tab' | 'space' | 'unset';
+
+  /**
+  * Specifies whether a file should end with a newline character when saved.
+  * - `true`: Ensure the file ends with a newline.
+  * - `false`: Ensure the file does not end with a newline.
+  *
+  * Editors must not insert newlines in empty files
+  * when saving those files, even if `insert_final_newline` = true.
+  */
   insert_final_newline?: true | false | 'unset';
+
+  /**
+  * Specifies the number of columns used to represent a tab character.
+  *
+  * This defaults to the value of {@link KnownProps.indent_size indent_size}
+  * and should not usually need to be specified.
+  */
   tab_width?: number | 'unset';
+
+  /**
+   * Specifies whether all whitespace characters
+   * preceding newline characters in the file should be removed.
+   * - `true`: Remove all trailing whitespace before newlines.
+   * - `false`: Preserve trailing whitespace.
+   */
   trim_trailing_whitespace?: true | false | 'unset';
 }
 
