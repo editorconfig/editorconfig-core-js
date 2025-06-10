@@ -31,7 +31,7 @@
     "test:all": "mocha && ctest . --preset Test",
     "precoverage": "npm run build -- --inlineSourceMap",
     "coverage": "c8 npm run test:all",
-    "postcoverage": "npm run build",
+    "postcoverage": "tsc",
     "ci": "npm run docs && npm run coverage -- -- -VV --output-on-failure",
     "lint": "eslint .",
     "pub": "npm run docs && npm run test"
