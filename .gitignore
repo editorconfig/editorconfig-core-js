@@ -13,3 +13,4 @@ CTest*
 lib/
 Makefile
 node_modules/
+docs/
