@@ -39,8 +39,8 @@ export interface ECFile {
   contents?: Buffer;
 }
 
-type SectionGlob = Minimatch | null;
-type GlobbedProps = [SectionName, Props, SectionGlob][];
+export type SectionGlob = Minimatch | null;
+export type GlobbedProps = [SectionName, Props, SectionGlob][];
 
 export interface ProcessedFileConfig {
   root: boolean;
@@ -128,7 +128,7 @@ export function parseBuffer(data: Buffer): ParseStringResult {
  *
  * @param data String to parse.
  * @returns Parsed contents.  Will be truncated if there was a parse error.
- * @deprecated Use {@link ParseBuffer} instead.
+ * @deprecated Use {@link parseBuffer} instead.
  */
 export function parseString(data: string): ParseStringResult {
   return parseBuffer(Buffer.from(data));

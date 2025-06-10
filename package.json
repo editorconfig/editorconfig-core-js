@@ -7,6 +7,10 @@
     "core"
   ],
   "main": "./lib/index.js",
+  "files": [
+    "lib/*",
+    "bin/*"
+  ],
   "contributors": [
     "Hong Xu (topbug.net)",
     "Jed Mao (https://github.com/jedmao/)",
@@ -18,7 +22,8 @@
     "lib": "./lib"
   },
   "scripts": {
-    "clean": "rimraf lib cmake_install.cmake CTestTestfile.cmake Makefile",
+    "clean": "rimraf docs coverage lib CMakeCache.txt CMakeFiles/ Testing/ cmake_install.cmake CTestTestfile.cmake Makefile",
+    "docs": "typedoc",
     "prebuild": "npm run clean",
     "build": "cmake . && tsc",
     "pretest": "npm run build && npm run lint",
@@ -26,11 +31,10 @@
     "test:all": "mocha && ctest . --preset Test",
     "precoverage": "npm run build -- --inlineSourceMap",
     "coverage": "c8 npm run test:all",
-    "postcoverage": "npm run build",
-    "ci": "npm run coverage -- -- -VV --output-on-failure",
+    "postcoverage": "tsc",
+    "ci": "npm run docs && npm run coverage -- -- -VV --output-on-failure",
     "lint": "eslint .",
-    "prepub": "npm run lint && npm run build",
-    "pub": "npm publish"
+    "pub": "npm run docs && npm run test"
   },
   "repository": {
     "type": "git",
@@ -49,7 +53,7 @@
     "@cto.af/eslint-config": "6.0.5",
     "@types/chai": "4.3.20",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.15.30",
+    "@types/node": "^24.0.0",
     "@types/semver": "^7.7.0",
     "@typescript-eslint/eslint-plugin": "8.34.0",
     "@typescript-eslint/parser": "8.34.0",
@@ -59,6 +63,7 @@
     "eslint-plugin-jsdoc": "50.7.1",
     "mocha": "^11.6.0",
     "rimraf": "^6.0.1",
+    "typedoc": "0.28.5",
     "typescript": "5.8.3",
     "typescript-eslint": "8.34.0"
   },
