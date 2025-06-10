@@ -1,6 +1,6 @@
 {
   "name": "editorconfig",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "EditorConfig File Locator and Interpreter for Node.js",
   "keywords": [
     "editorconfig",
