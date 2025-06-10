@@ -22,7 +22,7 @@
     "lib": "./lib"
   },
   "scripts": {
-    "clean": "rimraf lib cmake_install.cmake CTestTestfile.cmake Makefile",
+    "clean": "rimraf docs coverage lib CMakeCache.txt CMakeFiles/ Testing/ cmake_install.cmake CTestTestfile.cmake Makefile",
     "docs": "typedoc",
     "prebuild": "npm run clean",
     "build": "cmake . && tsc",
