@@ -20,7 +20,7 @@ describe('parse', () => {
   };
   const target = path.join(__dirname, '/app.js');
 
-  it('async', async() => {
+  it('async', async () => {
     const cfg = await editorconfig.parse(target);
     cfg.should.eql(expected);
   });
@@ -34,7 +34,7 @@ describe('parse', () => {
     visited[0].fileName.should.match(/\.editorconfig$/);
   });
 
-  it('caches', async() => {
+  it('caches', async () => {
     const cache = new Map();
     const cfg = await editorconfig.parse(target, {cache});
     cfg.should.eql(expected);
@@ -78,7 +78,7 @@ describe('parseFromFiles', () => {
     configs[0],
   ];
 
-  it('async', async() => {
+  it('async', async () => {
     const cfg: editorconfig.Props =
       await editorconfig.parseFromFiles(target, Promise.resolve(configs));
     cfg.should.eql(expected);
@@ -97,7 +97,7 @@ describe('parseFromFiles', () => {
     cfg.should.eql({foo: 'null'});
   });
 
-  it('caches async', async() => {
+  it('caches async', async () => {
     const cache = new Map();
     const cfg = await editorconfig.parseFromFiles(
       target, Promise.resolve(configs2), {cache}

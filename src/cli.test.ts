@@ -40,17 +40,17 @@ async function exec(...args: string[]): Promise<Results> {
 }
 
 describe('Command line interface', () => {
-  it('helps', async() => {
+  it('helps', async () => {
     const res = await exec('--help');
     res.stdout.should.match(/^Usage:/);
   });
 
-  it('Lists files', async() => {
+  it('Lists files', async () => {
     const res = await exec('foo.md', '--files');
     res.stdout.trim().should.match(/\.editorconfig \[\*\.md\]$/);
   });
 
-  it('Lists multiple files', async() => {
+  it('Lists multiple files', async () => {
     const res = await exec('foo.md', 'bar.js', '--files');
     res.stdout.should.match(/^\[foo\.md\]/);
     res.stdout.trim().should.match(/\.editorconfig \[\*\]$/);
