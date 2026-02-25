@@ -4,8 +4,7 @@ import * as semver from 'semver';
 
 import {TokenTypes, parse_to_uint32array} from '@one-ini/wasm';
 import {Buffer} from 'node:buffer';
-import {Minimatch} from 'minimatch';
-
+import {Minimatch} from './matcher.js';
 import pkg from '../package.json';
 
 const escapedSep = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g');
@@ -256,12 +255,9 @@ function buildFullGlob(pathPrefix: string, glob: string): Minimatch {
   // braces_escaped_backslash2
   // backslash_not_on_windows
   glob = glob.replace(/\\\\/g, '\\\\\\\\');
-  //
-  // star_star_over_separator{1,3,5,6,9,15}
+  // Star_star_over_separator{1,3,5,6,9,15}
   glob = glob.replace(/\*\*/g, '{*,**/**/**}');
-
-  // NOT path.join.  Must stay in forward slashes.
-  return new Minimatch(`${pathPrefix}/${glob}`, matchOptions);
+  return new Minimatch(pathPrefix, glob, matchOptions);
 }
 
 /**
@@ -333,16 +329,8 @@ function processFileContents(
       pathPrefix = pathPrefix.replace(escapedSep, '/');
     }
 
-    // After Windows path backslash's are turned into slashes, so that
-    // the backslashes we add here aren't turned into forward slashes:
-
-    // All of these characters are special to minimatch, but can be
-    // forced into path names on many file systems.  Escape them. Note
-    // that these are in the order of the case statement in minimatch.
-    pathPrefix = pathPrefix.replace(/[?*+@!()|[\]{}]/g, '\\$&');
-    // I can't think of a way for this to happen in the filesystems I've
-    // seen (because of the path.dirname above), but let's be thorough.
-    pathPrefix = pathPrefix.replace(/^#/, '\\#');
+    // No special-character escaping is needed because matching is
+    // performed against paths relative to this prefix.
 
     const globbed: GlobbedProps = parseBuffer(contents).map(([name, body]) => [
       name,
