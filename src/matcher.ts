@@ -1,4 +1,3 @@
-/* eslint-disable */
 import * as path from 'node:path';
 
 import {matcher as micromatchMatcher} from 'micromatch';
@@ -8,50 +7,6 @@ const escapedSep = new RegExp(path.sep.replace(/\\/g, '\\\\'), 'g');
 export interface MinimatchOptions {
   dot?: boolean;
   matchBase?: boolean;
-}
-
-function findExpandableBrace(pattern: string): {
-  start: number;
-  end: number;
-  body: string;
-} | null {
-  let escape = false;
-  let bracketDepth = 0;
-
-  for (let i = 0; i < pattern.length; i += 1) {
-    const ch = pattern[i];
-    if (escape) {
-      escape = false;
-      continue;
-    }
-    if (ch === '\\') {
-      escape = true;
-      continue;
-    }
-    if (ch === '[') {
-      bracketDepth += 1;
-      continue;
-    }
-    if (ch === ']') {
-      bracketDepth = Math.max(0, bracketDepth - 1);
-      continue;
-    }
-    if (ch !== '{' || bracketDepth > 0) {
-      continue;
-    }
-
-    const end = findMatchingBrace(pattern, i + 1);
-    if (end === -1) {
-      continue;
-    }
-    const body = pattern.slice(i + 1, end);
-    if (isExpandableBody(body)) {
-      return {start: i, end, body};
-    }
-    i = end;
-  }
-
-  return null;
 }
 
 function findMatchingBrace(pattern: string, start: number): number {
@@ -92,10 +47,6 @@ function findMatchingBrace(pattern: string, start: number): number {
     }
   }
   return -1;
-}
-
-function isExpandableBody(body: string): boolean {
-  return hasTopLevelComma(body) || expandNumericRange(body) !== null;
 }
 
 function hasTopLevelComma(body: string): boolean {
@@ -194,6 +145,54 @@ function expandNumericRange(body: string): string[] | null {
       }
       return range;
     }
+  }
+
+  return null;
+}
+
+function isExpandableBody(body: string): boolean {
+  return hasTopLevelComma(body) || expandNumericRange(body) !== null;
+}
+
+function findExpandableBrace(pattern: string): {
+  start: number;
+  end: number;
+  body: string;
+} | null {
+  let escape = false;
+  let bracketDepth = 0;
+
+  for (let i = 0; i < pattern.length; i += 1) {
+    const ch = pattern[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (ch === '\\') {
+      escape = true;
+      continue;
+    }
+    if (ch === '[') {
+      bracketDepth += 1;
+      continue;
+    }
+    if (ch === ']') {
+      bracketDepth = Math.max(0, bracketDepth - 1);
+      continue;
+    }
+    if (ch !== '{' || bracketDepth > 0) {
+      continue;
+    }
+
+    const end = findMatchingBrace(pattern, i + 1);
+    if (end === -1) {
+      continue;
+    }
+    const body = pattern.slice(i + 1, end);
+    if (isExpandableBody(body)) {
+      return {start: i, end, body};
+    }
+    i = end;
   }
 
   return null;
@@ -395,13 +394,14 @@ export class Minimatch {
     const normalizedPattern = normalizeBracketSlashes(pattern);
     this.hasPathSeparator = hasPathSeparator(normalizedPattern);
     const expandedPatterns = expandBraces(normalizedPattern);
-    this.matchFns = expandedPatterns.map(expanded => micromatchMatcher(expanded, {
+    const opts: micromatch.Options = {
       dot: options?.dot ?? false,
       bash: false,
       posix: true,
       strictBrackets: false,
       nobrace: true,
-    }));
+    };
+    this.matchFns = expandedPatterns.map(exp => micromatchMatcher(exp, opts));
   }
 
   public match(filepath: string): boolean {
