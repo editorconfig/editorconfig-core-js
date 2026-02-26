@@ -47,7 +47,7 @@
   "dependencies": {
     "@one-ini/wasm": "0.2.1",
     "commander": "^14.0.3",
-    "minimatch": "10.0.1",
+    "minimatch": "10.2.3",
     "semver": "^7.7.4"
   },
   "devDependencies": {
