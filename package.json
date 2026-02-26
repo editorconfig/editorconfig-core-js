@@ -71,7 +71,8 @@
   "packageManager": "pnpm@10.30.3",
   "pnpm": {
     "overrides": {
-      "mocha@11.7.5>diff": "8.0.3"
+      "mocha@11.7.5>diff": "8.0.3",
+      "c8@11.0.0>yargs": "18.0.0"
     }
   },
   "engines": {
