@@ -47,14 +47,14 @@
   "dependencies": {
     "@one-ini/wasm": "0.2.1",
     "commander": "^14.0.3",
-    "minimatch": "10.0.1",
+    "minimatch": "10.2.4",
     "semver": "^7.7.4"
   },
   "devDependencies": {
     "@cto.af/eslint-config": "6.2.4",
     "@types/chai": "4.3.20",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.3.1",
+    "@types/node": "^25.3.2",
     "@types/semver": "^7.7.1",
     "@typescript-eslint/eslint-plugin": "8.56.1",
     "@typescript-eslint/parser": "8.56.1",
