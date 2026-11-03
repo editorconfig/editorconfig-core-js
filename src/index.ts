@@ -195,7 +195,7 @@ function getConfigFileNames(filepath: string, options: ParseOptions): string[] {
   do {
     filepath = path.dirname(filepath);
     paths.push(path.join(filepath, options.config as string));
-  } while (filepath !== options.root);
+  } while (filepath !== options.root && filepath !== path.dirname(filepath));
   return paths;
 }
 
