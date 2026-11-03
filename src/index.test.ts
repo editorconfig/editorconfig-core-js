@@ -4,6 +4,7 @@ import * as editorconfig from './index.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import {Buffer} from 'node:buffer';
+import process from 'node:process';
 
 describe('parse', () => {
   const expected: editorconfig.Props = {
@@ -32,6 +33,30 @@ describe('parse', () => {
     visited.should.have.lengthOf(1);
     visited[0].glob.should.eql('*');
     visited[0].fileName.should.match(/\.editorconfig$/);
+  });
+
+  it('stops at the filesystem root when the configured root is not an ancestor', async () => {
+    const root = path.join(__dirname, 'not-an-ancestor');
+    const cfg = await editorconfig.parse(target, {root});
+    cfg.should.eql(expected);
+  });
+
+  it('stops at the filesystem root synchronously when the configured root is not an ancestor', () => {
+    const root = path.join(__dirname, 'not-an-ancestor');
+    const cfg = editorconfig.parseSync(target, {root});
+    cfg.should.eql(expected);
+  });
+
+  const windowsIt = process.platform === 'win32' ? it : it.skip;
+
+  windowsIt('parses Windows extended-length paths', async () => {
+    const cfg = await editorconfig.parse(path.toNamespacedPath(target));
+    cfg.should.eql(expected);
+  });
+
+  windowsIt('parses Windows extended-length paths synchronously', () => {
+    const cfg = editorconfig.parseSync(path.toNamespacedPath(target));
+    cfg.should.eql(expected);
   });
 
   it('caches', async () => {
