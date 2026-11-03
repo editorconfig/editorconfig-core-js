@@ -147,7 +147,7 @@ export function parseBuffer(data: Buffer): ParseStringResult {
   let key: string | null = null;
 
   for (let i = 0; i < parsed.length; i += 3) {
-    switch (parsed[i] as TokenTypes) {
+    switch (parsed[i] as unknown as TokenTypes) {
       case TokenTypes.Section: {
         cur = {};
         res.push([

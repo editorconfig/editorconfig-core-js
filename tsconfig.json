@@ -7,16 +7,16 @@
     "esModuleInterop": true,
     "target": "es2018",
     "sourceMap": false,
-    "moduleResolution": "node",
     "resolveJsonModule": true,
-    "rootDir": "src",
+    "rootDir": "./src",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node", "mocha"]
   },
   "include": [
     "src/"

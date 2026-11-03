@@ -1,7 +1,4 @@
 {
   "dep": ["prod", "dev", "packageManager"],
-  "reject": [
-    "chai",
-    "@types/chai"
-  ]
+  "cooldown": 7
 }
