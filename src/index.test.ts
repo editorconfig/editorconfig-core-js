@@ -2,6 +2,7 @@
 import 'chai/register-should.js';
 import * as editorconfig from './index.js';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import {Buffer} from 'node:buffer';
 import process from 'node:process';
@@ -206,6 +207,64 @@ describe('parseString', () => {
   it('handles blank comments', () => {
     const cfg = editorconfig.parseString('#');
     cfg.should.eql([[null, {}]]);
+  });
+});
+
+describe('parent directory components in section globs', () => {
+  let dir = '';
+  let target = '';
+
+  before(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'editorconfig-'));
+    target = path.join(dir, 'x.c');
+    fs.writeFileSync(target, '');
+  });
+
+  after(() => {
+    fs.rmSync(dir, {recursive: true, force: true});
+  });
+
+  /**
+   * Write a one-section config and return the properties for `x.c`.
+   *
+   * @param glob Section name to test.
+   * @returns Properties found for the target file.
+   */
+  function configFor(glob: string): editorconfig.Props {
+    fs.writeFileSync(
+      path.join(dir, '.editorconfig'),
+      `root = true\n\n[${glob}]\nhit = yes\n`
+    );
+    return editorconfig.parseSync(target);
+  }
+
+  it('does not let a `..` component consume a directory', () => {
+    // `[dir/../x.c]` must not match `x.c`, which is not inside `dir`.
+    configFor('dir/../x.c').should.not.have.property('hit');
+    configFor('a/../b/../x.c').should.not.have.property('hit');
+    configFor('**/../x.c').should.not.have.property('hit');
+    configFor('../x.c').should.not.have.property('hit');
+    configFor('./x.c').should.not.have.property('hit');
+  });
+
+  it('still matches a plain name and a `**` pattern', () => {
+    configFor('x.c').should.have.property('hit', 'yes');
+    configFor('**/x.c').should.have.property('hit', 'yes');
+    configFor('*.c').should.have.property('hit', 'yes');
+  });
+
+  it('treats an escaped `..` as a literal name', () => {
+    // `a\.\.` is a file called `a..`, not a parent-directory reference.
+    configFor('a\\.\\.c').should.not.have.property('hit');
+  });
+
+  it('does not match through the async parse either', async () => {
+    fs.writeFileSync(
+      path.join(dir, '.editorconfig'),
+      'root = true\n\n[dir/../x.c]\nhit = yes\n'
+    );
+    const cfg = await editorconfig.parse(target);
+    cfg.should.not.have.property('hit');
   });
 });
 
