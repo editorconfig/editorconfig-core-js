@@ -301,6 +301,33 @@ function normalizeProps(options: SectionBody): Props {
 }
 
 /**
+ * Section globs are matched against paths that are already relative to the
+ * directory holding the `.editorconfig` file, so no glob can ever refer to a
+ * parent directory.  The glob engines do not resolve a `..` component against
+ * that path though; they let it consume any one directory level.  That makes a
+ * section such as `[dir/../x.c]` match `x.c` sitting next to the config file,
+ * even though `x.c` is not inside `dir`.  Detect those components so the
+ * section can be rejected.
+ *
+ * @param glob Section name, as written in the config file.
+ * @returns True if the glob has an unescaped `..` path component.
+ */
+function hasParentDirComponent(glob: string): boolean {
+  return glob.split('/').some(part => {
+    let name = '';
+    for (let i = 0; i < part.length; i++) {
+      if (part[i] === '\\') {
+        // A backslash escapes the next character, so it is a literal.
+        i++;
+      } else {
+        name += part[i];
+      }
+    }
+    return name === '..';
+  });
+}
+
+/**
  * Take the contents of a config file, and prepare it for use.  If a cache is
  * provided, the result will be stored there.  As such, all of the higher-CPU
  * work that is per-file should be done here.
@@ -340,7 +367,9 @@ function processFileContents(
     const globbed: GlobbedProps = parseBuffer(contents).map(([name, body]) => [
       name,
       normalizeProps(body),
-      name ? buildFullGlob(pathPrefix, name) : null,
+      name && !hasParentDirComponent(name) ?
+        buildFullGlob(pathPrefix, name) :
+        null,
     ]);
 
     res = {
