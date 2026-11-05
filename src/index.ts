@@ -142,14 +142,14 @@ export type ParseStringResult = [SectionName, SectionBody][];
  */
 export function parseBuffer(data: Buffer): ParseStringResult {
   const parsed = parse_to_uint32array(data);
-  let cur: SectionBody = {};
+  let cur: SectionBody = Object.create(null);
   const res: ParseStringResult = [[null, cur]];
   let key: string | null = null;
 
   for (let i = 0; i < parsed.length; i += 3) {
     switch (parsed[i] as unknown as TokenTypes) {
       case TokenTypes.Section: {
-        cur = {};
+        cur = Object.create(null);
         res.push([
           data.toString('utf8', parsed[i + 1], parsed[i + 2]),
           cur,
@@ -273,7 +273,7 @@ function buildFullGlob(pathPrefix: string, glob: string): Minimatch {
  * @returns
  */
 function normalizeProps(options: SectionBody): Props {
-  const props: Props = {};
+  const props: Props = Object.create(null);
   for (const key in options) {
     if (Object.prototype.hasOwnProperty.call(options, key)) {
       const value = options[key];
@@ -368,7 +368,7 @@ function processFileContents(
       root: false,
       notfound: true,
       name: filepath,
-      config: [[null, {}, null]],
+      config: [[null, Object.create(null), null]],
     };
   } else {
     let pathPrefix = path.dirname(filepath);
@@ -575,7 +575,7 @@ function combine(
       }
     }
     return props;
-  }, {});
+  }, Object.create(null));
 
   if (options.unset) {
     unset(ret);
