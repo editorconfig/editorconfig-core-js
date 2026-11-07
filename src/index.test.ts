@@ -79,6 +79,27 @@ describe('parse', () => {
     editorconfig.parseSync(target, {cache});
     cache.size.should.be.eql(2);
   });
+
+  it('shares concurrent reads through the cache', async () => {
+    const cache = new Map<string, editorconfig.ProcessedFileConfig>();
+    let sets = 0;
+    const counting: editorconfig.Cache = {
+      get: p => cache.get(p),
+      set(p, config) {
+        sets++;
+        cache.set(p, config);
+        return this;
+      },
+    };
+    const cfgs = await Promise.all(Array.from(
+      {length: 10},
+      () => editorconfig.parse(target, {cache: counting})
+    ));
+    for (const cfg of cfgs) {
+      expect(cfg).to.eql(expected);
+    }
+    sets.should.be.eql(2);
+  });
 });
 
 describe('parseFromFiles', () => {
