@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
-import 'chai/register-should.js';
 import * as editorconfig from './index.js';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import {expect, should} from 'chai';
 import {Buffer} from 'node:buffer';
 import process from 'node:process';
 
+should();
+
 describe('parse', () => {
-  const expected: editorconfig.Props = {
+  const expected: editorconfig.Props = Object.assign(Object.create(null), {
     indent_style: 'space',
     indent_size: 2,
     end_of_line: 'lf',
@@ -19,18 +21,18 @@ describe('parse', () => {
     block_comment: '*',
     block_comment_end: '*/',
     block_comment_start: '/**',
-  };
+  });
   const target = path.join(__dirname, '/app.js');
 
   it('async', async () => {
     const cfg = await editorconfig.parse(target);
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
   });
 
   it('sync', () => {
     const visited: editorconfig.Visited[] = [];
     const cfg = editorconfig.parseSync(target, {files: visited});
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
     visited.should.have.lengthOf(1);
     visited[0].glob.should.eql('*');
     visited[0].fileName.should.match(/\.editorconfig$/);
@@ -39,31 +41,31 @@ describe('parse', () => {
   it('stops at the filesystem root when the configured root is not an ancestor', async () => {
     const root = path.join(__dirname, 'not-an-ancestor');
     const cfg = await editorconfig.parse(target, {root});
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
   });
 
   it('stops at the filesystem root synchronously when the configured root is not an ancestor', () => {
     const root = path.join(__dirname, 'not-an-ancestor');
     const cfg = editorconfig.parseSync(target, {root});
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
   });
 
   const windowsIt = process.platform === 'win32' ? it : it.skip;
 
   windowsIt('parses Windows extended-length paths', async () => {
     const cfg = await editorconfig.parse(path.toNamespacedPath(target));
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
   });
 
   windowsIt('parses Windows extended-length paths synchronously', () => {
     const cfg = editorconfig.parseSync(path.toNamespacedPath(target));
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
   });
 
   it('caches', async () => {
     const cache = new Map();
     const cfg = await editorconfig.parse(target, {cache});
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
     cache.size.should.be.eql(2);
     await editorconfig.parse(target, {cache});
     cache.size.should.be.eql(2);
@@ -72,7 +74,7 @@ describe('parse', () => {
   it('caches sync', () => {
     const cache = new Map();
     const cfg = editorconfig.parseSync(target, {cache});
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
     cache.size.should.be.eql(2);
     editorconfig.parseSync(target, {cache});
     cache.size.should.be.eql(2);
@@ -107,12 +109,12 @@ describe('parseFromFiles', () => {
   it('async', async () => {
     const cfg: editorconfig.Props =
       await editorconfig.parseFromFiles(target, Promise.resolve(configs));
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
   });
 
   it('sync', () => {
     const cfg = editorconfig.parseFromFilesSync(target, configs);
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
   });
 
   it('handles null', () => {
@@ -120,7 +122,7 @@ describe('parseFromFiles', () => {
       name: configPath,
       contents: Buffer.from('[*]\nfoo = null\n'),
     }]);
-    cfg.should.eql({foo: 'null'});
+    expect(cfg).to.eql({foo: 'null'});
   });
 
   it('caches async', async () => {
@@ -128,12 +130,12 @@ describe('parseFromFiles', () => {
     const cfg = await editorconfig.parseFromFiles(
       target, Promise.resolve(configs2), {cache}
     );
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
     cache.size.should.be.eql(2);
     const cfg2 = await editorconfig.parseFromFiles(
       target, Promise.resolve(configs2), {cache}
     );
-    cfg2.should.eql(expected);
+    expect(cfg2).to.eql(expected);
     cache.size.should.be.eql(2);
   });
 
@@ -142,12 +144,12 @@ describe('parseFromFiles', () => {
     const cfg = editorconfig.parseFromFilesSync(
       target, configs2, {cache}
     );
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
     cache.size.should.be.eql(2);
     const cfg2 = editorconfig.parseFromFilesSync(
       target, configs2, {cache}
     );
-    cfg2.should.eql(expected);
+    expect(cfg2).to.eql(expected);
     cache.size.should.be.eql(2);
   });
 
@@ -165,7 +167,7 @@ describe('parseFromFiles', () => {
     ];
     const escTarget = `${bogusPath}/app.js`;
     const cfg = editorconfig.parseFromFilesSync(escTarget, escConfigs);
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
   });
 });
 
@@ -191,22 +193,30 @@ describe('parseString', () => {
 
   it('sync', () => {
     const cfg = editorconfig.parseString(contents);
-    cfg.should.eql(expected);
+    expect(cfg).to.eql(expected);
   });
 
   it('handles errors', () => {
     const cfg = editorconfig.parseString('root: ');
-    cfg.should.eql([[null, {}]]);
+    expect(cfg).to.eql([[null, Object.create(null)]]);
   });
 
   it('handles backslashes in glob', () => {
     const cfg = editorconfig.parseString('[a\\\\b]');
-    cfg.should.eql([[null, {}], ['a\\\\b', {}]]);
+    expect(cfg).to.eql([[null, {}], ['a\\\\b', Object.create(null)]]);
   });
 
   it('handles blank comments', () => {
     const cfg = editorconfig.parseString('#');
-    cfg.should.eql([[null, {}]]);
+    expect(cfg).to.eql([[null, Object.create(null)]]);
+  });
+
+  it('handles __proto__', () => {
+    const cfg = editorconfig.parseString('__proto__ = foo');
+    const obj = Object.create(null);
+    // eslint-disable-next-line no-proto
+    obj.__proto__ = 'foo';
+    expect(cfg).to.eql([[null, obj]]);
   });
 });
 
@@ -240,22 +250,22 @@ describe('parent directory components in section globs', () => {
 
   it('does not let a `..` component consume a directory', () => {
     // `[dir/../x.c]` must not match `x.c`, which is not inside `dir`.
-    configFor('dir/../x.c').should.not.have.property('hit');
-    configFor('a/../b/../x.c').should.not.have.property('hit');
-    configFor('**/../x.c').should.not.have.property('hit');
-    configFor('../x.c').should.not.have.property('hit');
-    configFor('./x.c').should.not.have.property('hit');
+    expect(configFor('dir/../x.c')).to.not.have.property('hit');
+    expect(configFor('a/../b/../x.c')).to.not.have.property('hit');
+    expect(configFor('**/../x.c')).to.not.have.property('hit');
+    expect(configFor('../x.c')).to.not.have.property('hit');
+    expect(configFor('./x.c')).to.not.have.property('hit');
   });
 
   it('still matches a plain name and a `**` pattern', () => {
-    configFor('x.c').should.have.property('hit', 'yes');
-    configFor('**/x.c').should.have.property('hit', 'yes');
-    configFor('*.c').should.have.property('hit', 'yes');
+    expect(configFor('x.c')).to.have.property('hit', 'yes');
+    expect(configFor('**/x.c')).to.have.property('hit', 'yes');
+    expect(configFor('*.c')).to.have.property('hit', 'yes');
   });
 
   it('treats an escaped `..` as a literal name', () => {
     // `a\.\.` is a file called `a..`, not a parent-directory reference.
-    configFor('a\\.\\.c').should.not.have.property('hit');
+    expect(configFor('a\\.\\.c')).to.not.have.property('hit');
   });
 
   it('does not match through the async parse either', async () => {
@@ -264,7 +274,7 @@ describe('parent directory components in section globs', () => {
       'root = true\n\n[dir/../x.c]\nhit = yes\n'
     );
     const cfg = await editorconfig.parse(target);
-    cfg.should.not.have.property('hit');
+    expect(cfg).to.not.have.property('hit');
   });
 });
 
@@ -280,13 +290,13 @@ indent_size = 4
 [!(package).json]
 indent_size = 3`));
 
-    matcher(path.join(__dirname, 'package.json')).should.include({indent_size: 4});
-    matcher(path.join(__dirname, 'foo.json')).should.include({indent_size: 3});
+    expect(matcher(path.join(__dirname, 'package.json'))).to.include({indent_size: 4});
+    expect(matcher(path.join(__dirname, 'foo.json'))).to.include({indent_size: 3});
   });
 });
 
 describe('unset', () => {
-  it('pair witht the value `unset`', () => {
+  it('pair with the value `unset`', () => {
     const matcher = editorconfig.matcher({
       root: __dirname,
       unset: true,
@@ -297,7 +307,8 @@ indent_size = 4
 [*.json]
 indent_size = unset
 `));
-    matcher(path.join(__dirname, 'index.js')).should.include({indent_size: 4});
-    matcher(path.join(__dirname, 'index.json')).should.be.eql({ });
+
+    expect(matcher(path.join(__dirname, 'index.js'))).to.include({indent_size: 4});
+    expect(matcher(path.join(__dirname, 'index.json'))).to.be.eql(Object.create(null));
   });
 });
