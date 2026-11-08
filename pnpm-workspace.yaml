@@ -1,3 +1,5 @@
+minimumReleaseAgeExclude:
+  - '@one-ini/wasm@0.2.3'
 overrides:
   glob: ~14.0.3
   minimatch: ~11.0.4
