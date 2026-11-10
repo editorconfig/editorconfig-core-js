@@ -401,8 +401,41 @@ function processFileContents(
 }
 
 /**
+ * Reads of config files that are in progress, per cache, so that concurrent
+ * lookups of the same file share one read.  Entries are removed once the read
+ * settles; the finished result lives in the cache.
+ */
+const pendingConfigs = new WeakMap<
+  Cache,
+  Map<string, Promise<ProcessedFileConfig>>
+>();
+
+/**
+ * Read a config file's contents from disk, process, and insert into the cache
+ * (if configured).
+ *
+ * @param filepath The fully-qualified path of the config file.
+ * @param options Access to the cache, if configured.
+ * @returns The processed file.
+ */
+async function readConfig(
+  filepath: string,
+  options: ParseOptions
+): Promise<ProcessedFileConfig> {
+  const contents = await new Promise<Buffer | undefined>(resolve => {
+    fs.readFile(filepath, (_, buf) => {
+      // Ignore errors.  contents will be undefined
+      // Perhaps only file-not-found should be ignored?
+      resolve(buf);
+    });
+  });
+  return processFileContents(filepath, contents, options);
+}
+
+/**
  * Get a file from the cache, or read its contents from disk, process, and
- * insert into the cache (if configured).
+ * insert into the cache (if configured).  If the cache is configured,
+ * concurrent calls for the same file share one read.
  *
  * @param filepath The fully-qualified path of the config file.
  * @param options Access to the cache, if configured.
@@ -412,20 +445,29 @@ async function getConfig(
   filepath: string,
   options: ParseOptions
 ): Promise<ProcessedFileConfig> {
-  if (options.cache) {
-    const cached = options.cache.get(filepath);
-    if (cached) {
-      return cached;
+  if (!options.cache) {
+    return readConfig(filepath, options);
+  }
+  const cached = options.cache.get(filepath);
+  if (cached) {
+    return cached;
+  }
+  let pending = pendingConfigs.get(options.cache);
+  if (!pending) {
+    pending = new Map();
+    pendingConfigs.set(options.cache, pending);
+  }
+  let config = pending.get(filepath);
+  if (!config) {
+    config = readConfig(filepath, options);
+    pending.set(filepath, config);
+    try {
+      return await config;
+    } finally {
+      pending.delete(filepath);
     }
   }
-  const contents = await new Promise<Buffer | undefined>(resolve => {
-    fs.readFile(filepath, (_, buf) => {
-      // Ignore errors.  contents will be undefined
-      // Perhaps only file-not-found should be ignored?
-      resolve(buf);
-    });
-  });
-  return processFileContents(filepath, contents, options);
+  return config;
 }
 
 /**
