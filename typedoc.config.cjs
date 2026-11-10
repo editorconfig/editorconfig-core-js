@@ -20,6 +20,7 @@ const config = {
     includeGroups: false,
   },
   categorizeByGroup: false,
+  includeVersion: true,
   sort: ['static-first', 'alphabetical'],
   exclude: ['tests/*'],
 };

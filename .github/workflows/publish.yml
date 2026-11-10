@@ -29,5 +29,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs
           publish_branch: gh-pages
+          force_orphan: true
       - run: npm pkg delete devDependencies scripts packageManager pnpm
       - run: npm publish --access public --provenance
