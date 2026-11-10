@@ -453,15 +453,19 @@ async function getConfig(
     return cached;
   }
   let pending = pendingConfigs.get(options.cache);
-  if (!pending) {
+  let config: Promise<ProcessedFileConfig> | undefined = undefined;
+  if (pending) {
+    config = pending.get(filepath);
+  } else {
     pending = new Map();
     pendingConfigs.set(options.cache, pending);
   }
-  let config = pending.get(filepath);
   if (!config) {
     config = readConfig(filepath, options);
     pending.set(filepath, config);
     try {
+      // Reminder: this returns immediately with a promise, and the finally
+      // block doesn't fire until the promise is settled.
       return await config;
     } finally {
       pending.delete(filepath);
