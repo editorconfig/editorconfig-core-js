@@ -8,6 +8,7 @@ jobs:
   build:
     uses: cto-af/workflows/.github/workflows/node-ci.yml@main
     with:
+      platforms: '["ubuntu-latest", "macos-latest", "windows-latest"]'
       script: ci
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
