@@ -40,7 +40,7 @@
     "postcoverage": "tsc",
     "ci": "npm run docs && npm run coverage -- -- -VV --output-on-failure",
     "lint": "eslint .",
-    "pub": "npm run docs && npm run test"
+    "pub": "npm run test && npm run docs"
   },
   "repository": {
     "type": "git",
