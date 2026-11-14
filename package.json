@@ -52,8 +52,8 @@
   "license": "MIT",
   "dependencies": {
     "@one-ini/wasm": "0.2.3",
-    "commander": "^15.0.0",
-    "minimatch": "~11.0.4",
+    "commander": "^15.1.0",
+    "minimatch": "~11.0.5",
     "semver": "^7.8.6"
   },
   "devDependencies": {
@@ -68,14 +68,14 @@
     "c8": "12.0.0",
     "chai": "6.3.0",
     "eslint": "10.14.0",
-    "eslint-plugin-jsdoc": "65.4.2",
+    "eslint-plugin-jsdoc": "65.4.5",
     "mocha": "^12.0.3",
     "rimraf": "^6.1.4",
     "typedoc": "0.28.20",
     "typescript-eslint": "8.72.1",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
-  "packageManager": "pnpm@12.17.0",
+  "packageManager": "pnpm@12.18.0",
   "engines": {
     "node": ">=22"
   }
