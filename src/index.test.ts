@@ -314,6 +314,28 @@ indent_size = 3`));
     expect(matcher(path.join(__dirname, 'package.json'))).to.include({indent_size: 4});
     expect(matcher(path.join(__dirname, 'foo.json'))).to.include({indent_size: 3});
   });
+
+  it('parses known boolean values in any case', () => {
+    const matcher = editorconfig.matcher({
+      root: __dirname,
+    }, Buffer.from(`\
+[*]
+insert_final_newline = TRUE
+trim_trailing_whitespace = False
+indent_style = SPACE
+charset = NULL
+`));
+
+    expect(matcher(path.join(__dirname, 'index.js'))).to.eql(Object.assign(
+      Object.create(null),
+      {
+        insert_final_newline: true,
+        trim_trailing_whitespace: false,
+        indent_style: 'space',
+        charset: 'null',
+      }
+    ));
+  });
 });
 
 describe('unset', () => {
