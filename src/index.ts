@@ -278,13 +278,13 @@ function normalizeProps(options: SectionBody): Props {
     if (Object.prototype.hasOwnProperty.call(options, key)) {
       const value = options[key];
       const key2 = key.toLowerCase();
-      let value2: unknown = value;
-      if (knownProps.has(key2)) {
-        // All of the values for the known props are lowercase.
-        value2 = String(value).toLowerCase();
-      }
+      // All of the values for the known props are lowercase.
+      const str = knownProps.has(key2) ?
+        String(value).toLowerCase() :
+        String(value);
+      let value2: unknown = str;
       try {
-        value2 = JSON.parse(String(value));
+        value2 = JSON.parse(str);
       } catch (_e) {
         // Ignored
       }
@@ -292,7 +292,7 @@ function normalizeProps(options: SectionBody): Props {
         //
         // null and undefined are values specific to JSON (no special meaning
         // in editorconfig) & should just be returned as regular strings.
-        value2 = String(value);
+        value2 = str;
       }
       props[key2] = value2;
     }
