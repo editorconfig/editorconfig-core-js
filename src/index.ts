@@ -258,7 +258,8 @@ function buildFullGlob(pathPrefix: string, glob: string): Minimatch {
   glob = glob.replace(/\\\\/g, '\\\\\\\\');
   //
   // star_star_over_separator{1,3,5,6,9,15}
-  glob = glob.replace(/\*\*/g, '{*,**/**/**}');
+  // Skip escaped characters, so that `\**` stays a literal `*` followed by `*`.
+  glob = glob.replace(/\\.|\*\*/g, m => (m === '**' ? '{*,**/**/**}' : m));
 
   // NOT path.join.  Must stay in forward slashes.
   return new Minimatch(`${pathPrefix}/${glob}`, matchOptions);
