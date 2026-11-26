@@ -192,6 +192,42 @@ describe('parseFromFiles', () => {
   });
 });
 
+describe('root', () => {
+  const target = path.join(__dirname, 'app.js');
+
+  /**
+   * Parse with a child config holding the given root line and a parent
+   * config that sets indent_size.
+   *
+   * @param rootLine The `root = ...` line of the child config.
+   * @returns Properties found for the target file.
+   */
+  function parseWithRoot(rootLine: string): editorconfig.Props {
+    return editorconfig.parseFromFilesSync(target, [
+      {
+        name: path.join(__dirname, '.editorconfig'),
+        contents: Buffer.from(`${rootLine}\n[*]\nindent_style = space\n`),
+      },
+      {
+        name: path.join(__dirname, '..', '.editorconfig'),
+        contents: Buffer.from('[*]\nindent_size = 2\n'),
+      },
+    ]);
+  }
+
+  it('stops at `root = true` in any case', () => {
+    for (const value of ['true', 'TRUE', 'TrUe']) {
+      expect(parseWithRoot(`root = ${value}`)).to.not.have.property('indent_size');
+    }
+  });
+
+  it('keeps searching when root is not `true`', () => {
+    for (const value of ['false', 'FALSE', 'False', 'yes', '1']) {
+      expect(parseWithRoot(`root = ${value}`)).to.include({indent_size: 2});
+    }
+  });
+});
+
 describe('parseString', () => {
   const expected: editorconfig.ParseStringResult = [
     [null, {root: 'true'}],

@@ -389,7 +389,8 @@ function processFileContents(
     ]);
 
     res = {
-      root: Boolean(globbed[0][1].root), // Global section: globbed[0]
+      // Global section: globbed[0].  Only `true`, in any case, makes a root.
+      root: String(globbed[0][1].root).toLowerCase() === 'true',
       name: filepath,
       config: globbed,
     };
