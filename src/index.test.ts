@@ -351,6 +351,24 @@ indent_size = 3`));
     expect(matcher(path.join(__dirname, 'foo.json'))).to.include({indent_size: 3});
   });
 
+  it('keeps an escaped `*` literal when another `*` follows it', () => {
+    const matcher = editorconfig.matcher({
+      root: __dirname,
+    }, Buffer.from(String.raw`
+[\**]
+indent_size = 4
+
+[a/\***]
+indent_size = 3
+`));
+
+    expect(matcher(path.join(__dirname, '*'))).to.include({indent_size: 4});
+    expect(matcher(path.join(__dirname, 'sub', '*x'))).to.include({indent_size: 4});
+    expect(matcher(path.join(__dirname, 'x'))).to.eql({});
+    expect(matcher(path.join(__dirname, 'a', '*b', 'c'))).to.include({indent_size: 3});
+    expect(matcher(path.join(__dirname, 'a', 'b'))).to.eql({});
+  });
+
   it('parses known boolean values in any case', () => {
     const matcher = editorconfig.matcher({
       root: __dirname,
